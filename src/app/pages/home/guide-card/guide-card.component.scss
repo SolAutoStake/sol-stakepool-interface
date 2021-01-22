@@ -1,0 +1,23 @@
+#guide-card{
+    color: rgb(211, 211, 211);
+    border: 1px solid rgb(65, 65, 70);
+    background-color: rgb(43, 44, 47);
+    border-radius: 0.25rem;
+    box-shadow: rgb(0 0 0 / 30%) 2px 2px 10px 0px;
+    padding: 1rem 2rem;
+    position: relative;
+}
+#guide-card {
+    #title{
+        font-size: 18px;
+        text-transform: capitalize;
+        font-weight: bold;
+    }
+    p{
+        margin: 10px 0;
+    }
+    #read-more{
+        text-decoration: underline;
+        cursor: pointer;
+    }
+}

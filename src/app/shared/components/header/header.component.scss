@@ -1,0 +1,60 @@
+@import '/src/variables.scss';
+header {
+    border-bottom: 1px solid $stakeconomy-prime;
+    #top-bar{
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        align-items: center;
+    }
+    // left bar
+    #logo img {
+        width: 40px;
+    }
+    nav,#head-actions {
+        width: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    nav a{
+        color: $stakeconomy-prime;
+        cursor: pointer;
+        &:hover{
+            color: $stakeconomy-active;
+        }
+        &.active-route{
+            border-bottom:2px dashed $stakeconomy-active;
+        }
+    }
+    // right bar
+    #head-actions {
+        width: 300px;
+    }
+
+    #my-spl {
+        color: white;
+        padding: 8.5px;
+        letter-spacing: 0.6px;
+        cursor: pointer;
+        border-radius: 8px;
+        background: rgb(34,40,49);
+        background: linear-gradient( 
+    221deg
+     ,$stakeconomy-prime 0%, $stakeconomy-active 55%);
+     transition: 0.3s ease;
+     opacity: 0.9;
+     &:hover{
+        opacity: 1;
+     }
+    }
+    fa-icon{
+        cursor: pointer;
+        font-size: 20px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+
+}

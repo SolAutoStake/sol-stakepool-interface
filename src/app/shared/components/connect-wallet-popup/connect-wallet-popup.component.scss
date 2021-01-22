@@ -1,0 +1,46 @@
+@import '/src/variables.scss';
+:host{
+    background: #00000047;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    display: flex;
+    align-items: center;
+}
+#connect-wallet-popup {
+    width: 400px;
+    background: white;
+    box-shadow: rgb(42 46 51) 0px 4px 8px 0px;
+    border-radius: 8px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+}
+#popup-header{
+    color: $stakeconomy-second;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    fa-icon{
+        color: $stakeconomy-second;
+        cursor: pointer;
+    }
+}
+#popup-body{
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    textarea{
+        border: 2px dashed $stakeconomy-active;
+        margin: 14px 0;
+        padding: 5px;
+    }
+    button{
+        text-transform: capitalize;
+    }
+}
