@@ -5,21 +5,23 @@ import { ConnectWalletPopupComponent, HeaderComponent } from './components';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-
+import { IonicModule } from '@ionic/angular';
 @NgModule({
   declarations: [
     HeaderComponent,
-    ConnectWalletPopupComponent
+    ConnectWalletPopupComponent,
   ],
   imports: [
+    IonicModule,
     CommonModule,
     HttpClientModule,
     FontAwesomeModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   exports: [
+    IonicModule,
     HttpClientModule,
     FontAwesomeModule,
     HeaderComponent,

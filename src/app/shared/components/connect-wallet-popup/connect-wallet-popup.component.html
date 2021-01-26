@@ -1,11 +1,11 @@
 <div id="connect-wallet-popup">
     <div id="popup-header">
         <div id="title">connect your solana wallet</div>
-        <fa-icon [icon]="closeIcon"></fa-icon>
+        <fa-icon [icon]="closeIcon" (click)="closePopup()"></fa-icon>
     </div>
     <form id="popup-body" [formGroup]="mnemonicForm" autocomplete="off" (ngSubmit)="connectWallet()">
         <p>connect your wallet using your twelve seed words</p>
         <textarea placeholder="12 seed words" formControlName="mnemonic"  rows="4" type="text"></textarea>
-        <button class="connect-wallet-button" type="submit" [disabled]="mnemonicForm.invalid || isSubmitted">approve connection</button>
+        <ion-button class="connect-wallet-button" type="submit" [disabled]="mnemonicForm.invalid || isSubmitted">approve connection</ion-button>
     </form>
 </div>

@@ -1,13 +1,5 @@
-@import '/src/variables.scss';
-:host{
-    background: #00000047;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    display: flex;
-    align-items: center;
-}
+
+
 #connect-wallet-popup {
     width: 400px;
     background: white;
@@ -19,14 +11,14 @@
     padding: 20px 12px;
 }
 #popup-header{
-    color: $stakeconomy-second;
+    color: var(--sol-stake-second);
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
     text-transform: capitalize;
     fa-icon{
-        color: $stakeconomy-second;
+        color: var(--sol-stake-second);
         cursor: pointer;
     }
 }
@@ -36,7 +28,7 @@
     flex-direction: column;
     font-size: 14px;
     textarea{
-        border: 2px dashed $stakeconomy-active;
+        border: 2px dashed var(--sol-stake-active);
         margin: 14px 0;
         padding: 5px;
     }

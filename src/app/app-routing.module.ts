@@ -8,6 +8,11 @@ const routes: Routes = [
     loadChildren: () =>
       import("./pages/home/home.module").then((m) => m.HomeModule),
   },
+  {
+    path: "stake",
+    loadChildren: () =>
+      import("./pages/stake/stake.module").then((m) => m.StakeModule),
+  },
   { path: "**", redirectTo: "" },
 ];
 

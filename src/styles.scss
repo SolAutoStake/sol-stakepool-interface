@@ -1,7 +1,5 @@
-
-
 /* You can add global styles to this file, and also import other style files */
-@import '/src/variables.scss';
+
 @import url('https://fonts.googleapis.com/css2?family=Arimo&display=swap');
 *{
     margin: 0;
@@ -11,35 +9,61 @@
     text-decoration: none;
     font-family: 'Arimo', sans-serif;
 }
+
 body{
-    background-image: url(data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnPjxwYXRoIGZpbGw9JyM5QzkyQUMnIGZpbGwtb3BhY2l0eT0nLjQnIGQ9J00xIDNoMXYxSDFWM3ptMi0yaDF2MUgzVjF6Jy8+PC9zdmc+);
-    background-attachment: fixed;
+  background-image: linear-gradient(to top, #c23fda, #7b4cbe, #434895, #263a63, #222831) !important;
 }
 
 img{
     max-width: 100%;
 }
 .container{
-    padding: 24px;
-    max-width: 1140px;
-    margin: 0 auto;
+  padding: 10px 24px;
+  max-width: 1140px;
+  margin: 0 auto;
+  --background: transparent;
 }
-
 .connect-wallet-button{
-    background: $stakeconomy-prime;
-    padding: 10px 36px;
-    border-radius: 8px;
-    color: white;
+    --background: white;
+    --color: var(--sol-stake-prime);
+    --padding: 10px 36px;
+    --transition:all 0.3s ease; 
+    --border-radius: var(--sol-stake-button-border-radius);
+    font-size: 14px;
     cursor: pointer;
-    transition: 0.3s ease;
-    font-weight: bold;
+    font-weight: 400;
     letter-spacing: 0.6px;
-    opacity: 0.9;
+    --opacity: 0.9;
+    margin: 0 20px;
     &:hover{
-        opacity: 1;
+        --opacity: 1;
     }
     &:disabled{
-        opacity: 0.5;
+        --opacity: 0.5;
     }
 }
 
+ion-popover.connect-wallet-popover {
+    --max-width: 90%;
+    --width: auto;
+    --max-height: 100%;
+  }
+
+  .toastStyle {
+    --color: white;
+    text-transform: capitalize;
+    --border-radius: 8px;
+  }
+  .toastError {
+    --background: var(--sol-stake-err);
+    --box-shadow: 0 8px 16px 0 rgba(255, 30, 30, 0.24);
+  }
+  .toastInfo {
+    --background: var(--sol-stake-err);
+    --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
+  }
+  .toastSuccess {
+    --background: var(--sol-stake-suc);
+    --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
+  }
+  

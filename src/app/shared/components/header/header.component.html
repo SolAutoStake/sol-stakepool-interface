@@ -1,19 +1,35 @@
 <header>
     <div class="container" id="top-bar">
-        <nav  >
+        <nav >
             <div id="logo">
-                <img src="assets/images/logo.png" alt="logo"/>
+                <fa-icon [icon]="logo"></fa-icon>
             </div>
-            
-            <a routerLink="/" routerLinkActive="active-route">Stakepool</a>  
-            <a routerLink="/SCM" routerLinkActive="active-route">SCM</a>  
-            <a routerLink="/monitor" routerLinkActive="active-route">Monitor</a>  
+
+            <a [routerLinkActiveOptions]="{exact: true}" routerLink="/" routerLinkActive="active-route">wallet</a>
+            <a [routerLinkActiveOptions]="{exact: true}" routerLink="/stake" routerLinkActive="active-route">stake</a>
+            <a [routerLinkActiveOptions]="{exact: true}" routerLink="/SPL" routerLinkActive="active-route">SPL</a>
+            <a href="https://solanabeach.io/" target="_blank">monitor <fa-icon [icon]="exLink"></fa-icon></a>
         </nav>
-        
-        <div id="head-actions">
-            <div id="my-spl">SCM</div>
-            <button class="connect-wallet-button">connect wallet</button>
-            <fa-icon [icon]="dots"></fa-icon>
+
+        <div id="menu">
+            <div id="my-spl">0 SPL</div>
+            <ng-container *ngIf="!wallet; else logedWallet">
+                <ion-button (click)="openWalletConnector()" class="connect-wallet-button">connect wallet</ion-button>
+            </ng-container>
+            <ng-template #logedWallet>
+                <ion-button class="connect-wallet-button" (click)="myWallet()">
+                    {{wallet.balance}} SOL <span id="address">{{utilsService.shortenAddress(wallet.address)}}</span>
+                </ion-button>
+            </ng-template>
+
+
+
+            <fa-icon (click)="selectNetwork.open($event)" [icon]="networks"></fa-icon>
+            <ion-select mode="ios" hidden [value]="cluster" (ionChange)="onClusterChange($event)" [interfaceOptions]="{subHeader: 'Select Network'}" interface="popover">
+                <ion-select-option value="mainnet-beta">mainnet beta</ion-select-option>
+                <ion-select-option value="devnet">devnet</ion-select-option>
+                <ion-select-option value="testnet">testnet</ion-select-option>
+            </ion-select>
         </div>
     </div>
 </header>

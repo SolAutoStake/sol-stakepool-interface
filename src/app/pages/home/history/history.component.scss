@@ -1,0 +1,49 @@
+:host{
+    margin-top: 50px;
+    display: block;
+}
+ion-card{
+    padding: 20px;
+}
+fa-icon{
+    margin-inline-start: 5px;
+}
+#wallet-card-title{
+    font-size: 24px;
+    text-transform: capitalize;
+}
+#wallet-list-head,.token {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    line-height: 40px;
+}
+#wallet-list-head{
+    padding: 10px 0;
+    font-size: 16px;
+}
+#wallet-list-head {
+    border-bottom: 1px dashed var(--sol-stake-active);
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+#wallet-list-head div, .token div, .token a {
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+#wallet-list-body{
+    color:var(--sol-stake-prime);
+}
+.wallet-actions {
+    display: flex;
+    ion-button{
+        text-transform: capitalize;
+        width: 75px;
+        --border-radius: var(--sol-stake-button-border-radius);
+        --border-color: var(--sol-stake-active);
+        --color: var(--ion-stake-second);
+        --color-hover: var(--sol-stake-active);
+    }
+}

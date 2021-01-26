@@ -18,15 +18,15 @@ export class ApiService {
     return throwError(error.error);
   }
 
-  get(path: string, params: HttpParams = new HttpParams()): Observable<any> {
+  get(path: string, params: any = new HttpParams()): Observable<any> {
     return this.http
-      .get(`${environment.api_url}${path}`, { params })
+      .get(`${path}`, { params })
       .pipe(catchError(this.formatErrors));
   }
 
   put(path: string, formData: FormData): Observable<any> {
     return this.http
-      .put(`${environment.api_url}${path}`, formData, {
+      .put(`${path}`, formData, {
         headers: new HttpHeaders({
           // 'enctype': 'multipart/form-data;',
           // 'Accept': 'plain/text'
@@ -36,7 +36,7 @@ export class ApiService {
   }
   post(path: string, body: Object = {}): Observable<any> {
     return this.http
-      .post(`${environment.api_url}${path}`, JSON.stringify(body), {
+      .post(`${path}`, JSON.stringify(body), {
         headers: new HttpHeaders(this.headerObj),
       })
       .pipe(catchError(this.formatErrors));
@@ -44,7 +44,7 @@ export class ApiService {
 
   delete(path): Observable<any> {
     return this.http
-      .delete(`${environment.api_url}${path}`)
+      .delete(`${path}`)
       .pipe(catchError(this.formatErrors));
   }
 }

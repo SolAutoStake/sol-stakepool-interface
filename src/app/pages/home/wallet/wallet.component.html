@@ -1,0 +1,35 @@
+<ion-card id="wallet-card">
+    <ion-card-title id="wallet-card-title">wallet</ion-card-title>
+    <div id="wallet-list">
+        <div id="wallet-list-head">
+            <div>Token</div>
+            <div>Balance(Value)</div>
+            <div>SPL</div>
+            <div>Action</div>
+        </div>
+        <div id="wallet-list-body">
+            <div class="token">
+                <div>SOL</div>
+                <div>2.35 <span>(6$)</span></div>
+                <div>
+                    <fa-icon [icon]="xMark"></fa-icon>
+                </div>
+                <div class="wallet-actions">
+                    <ion-button fill="clear">send</ion-button>
+                    <ion-button fill="clear">receive</ion-button>
+                </div>
+            </div>
+            <div class="token">
+                <div>SRM</div>
+                <div>0.1 <span>(2$)</span></div>
+                <div>
+                    <fa-icon [icon]="vMark"></fa-icon>
+                </div>
+                <div class="wallet-actions">
+                    <ion-button fill="clear">send</ion-button>
+                    <ion-button fill="clear">receive</ion-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-card>

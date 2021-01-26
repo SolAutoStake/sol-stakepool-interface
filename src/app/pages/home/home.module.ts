@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { RouterModule, Routes } from '@angular/router';
-import { GuideCardComponent } from './guide-card/guide-card.component';
-import { StakePoolCardComponent } from './stake-pool-card/stake-pool-card.component';
+import { WalletComponent } from './wallet/wallet.component';
+import { HistoryComponent } from './history/history.component';
 
 
 const routes: Routes = [
@@ -20,7 +20,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [HomeComponent, GuideCardComponent, StakePoolCardComponent],
+  declarations: [HomeComponent, WalletComponent, HistoryComponent],
   imports: [
     CommonModule,
     SharedModule,
