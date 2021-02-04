@@ -1,0 +1,21 @@
+<ion-card>
+    <ion-card-header>
+        <ion-card-subtitle style="font-size: 22px;">Transer SOL</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+        <div class="form-group" id="amount-group">
+            <!-- <ion-label>amount</ion-label> -->
+            <span>
+                <ion-input [value]="amountInput.value || 0" #copyVis placeholder="0"></ion-input><small>$SOL</small>
+            </span>
+            <ion-range #amountInput value="0" [(ngModel)]="copyVis.value"></ion-range>
+            <small style="display: block;text-align: center;">use slider to adjust amount</small>
+        </div>
+        <div class="form-group" id="address-group">
+            <ion-label>sending to</ion-label>
+            <ion-input  #addressInput placeholder="address"></ion-input>
+        </div>
+        <ion-button (click)="transferSol()">send</ion-button>
+    </ion-card-content>
+</ion-card>

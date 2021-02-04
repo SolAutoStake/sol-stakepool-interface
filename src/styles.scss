@@ -43,7 +43,7 @@ img{
     }
 }
 
-ion-popover.connect-wallet-popover {
+ion-popover.connect-wallet-popover, ion-popover.send-token-popup {
     --max-width: 90%;
     --width: auto;
     --max-height: 100%;
@@ -59,7 +59,7 @@ ion-popover.connect-wallet-popover {
     --box-shadow: 0 8px 16px 0 rgba(255, 30, 30, 0.24);
   }
   .toastInfo {
-    --background: var(--sol-stake-err);
+    --background: var(--sol-stake-prime);
     --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
   }
   .toastSuccess {

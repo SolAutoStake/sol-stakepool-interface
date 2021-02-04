@@ -12,4 +12,10 @@ export class UtilsService {
     }
     return
   }
+  public shortenSignature(signature: string, chars = 4): string {
+    if(signature){
+      return `${signature.substring(0, chars + 2)}...${signature.substring(85 - chars)}`
+    }
+    return
+  }
 }

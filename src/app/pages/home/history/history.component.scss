@@ -6,37 +6,37 @@ ion-card{
     padding: 20px;
 }
 fa-icon{
-    margin-inline-start: 5px;
+    margin: 0 5px;
 }
-#wallet-card-title{
+#history-card-title{
     font-size: 24px;
     text-transform: capitalize;
 }
-#wallet-list-head,.token {
+#history-list-head,.record {
     display: flex;
     align-items: center;
     justify-content: space-between;
     text-align: center;
     line-height: 40px;
 }
-#wallet-list-head{
+#history-list-head{
     padding: 10px 0;
     font-size: 16px;
 }
-#wallet-list-head {
+#history-list-head {
     border-bottom: 1px dashed var(--sol-stake-active);
     margin-top: 30px;
     margin-bottom: 10px;
 }
-#wallet-list-head div, .token div, .token a {
+#history-list-head div, .record > div, .record a {
     width: 100%;
     margin: 0 auto;
     display: block;
 }
-#wallet-list-body{
-    color:var(--sol-stake-prime);
+#history-list-body, #record-list{
+    min-height: 222px;
 }
-.wallet-actions {
+.history-actions {
     display: flex;
     ion-button{
         text-transform: capitalize;
@@ -45,5 +45,13 @@ fa-icon{
         --border-color: var(--sol-stake-active);
         --color: var(--ion-stake-second);
         --color-hover: var(--sol-stake-active);
+    }
+}
+a {
+    cursor: pointer;
+}
+:host ::ng-deep{
+    .ngx-pagination .current{
+        background: #9148c7;
     }
 }

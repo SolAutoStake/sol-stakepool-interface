@@ -5,7 +5,7 @@
 /* To quickly generate your own theme, check out the color generator */
 /* https://ionicframework.com/docs/theming/color-generator */
 :root{
-    --sol-stake-prime: #222831;
+    --sol-stake-prime: #2c3c6c;
     --sol-stake-second: #393e46;
     --sol-stake-active: #c23fda;
     --sol-stake-disabled: #eeeeee;

@@ -10,7 +10,7 @@ export class PriceFeedService {
   constructor(private apiService: ApiService) { 
     this.getPriceList();
   }
-  async getPriceList(tokens?: string[]) {
+  async getPriceList(tokens?: string[]): Promise<any> {
     const rate = await this.apiService.get(`${this.endpoint}?ids=solana&vs_currencies=usd`).toPromise();
     console.log(rate);
     return rate;

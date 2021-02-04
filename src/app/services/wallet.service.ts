@@ -4,29 +4,34 @@ import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { LocalDataService } from './local-data.service';
 import { ToastMessageService } from './toast-message.service';
-import * as bip39 from 'bip39';
-import * as Buffer from "Buffer";
 
 import {
   Account,
   Connection,
-  BpfLoader,
-  BPF_LOADER_PROGRAM_ID,
-  PublicKey,
   LAMPORTS_PER_SOL,
-  SystemProgram,
-  TransactionInstruction,
-  Transaction,
-  sendAndConfirmTransaction,
-  AccountInfo,
   Cluster,
   clusterApiUrl,
 } from '@solana/web3.js';
 import { Wallet } from '../models';
 import { PriceFeedService } from './price-feed.service';
 
+import * as bip32 from 'bip32';
+import * as nacl from 'tweetnacl'
 
-
+async function generateMnemonicAndSeed() {
+  const bip39 = await import('bip39');
+  const mnemonic = bip39.generateMnemonic(128);
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+  return { mnemonic, seed: Buffer.from(seed).toString('hex') };
+}
+async function mnemonicToSeed(mnemonic) {
+  const bip39 = await import('bip39');
+  if (!bip39.validateMnemonic(mnemonic)) {
+    throw new Error('Invalid seed words');
+  }
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+  return Buffer.from(seed);
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -43,7 +48,6 @@ export class WalletService {
   constructor(
     private apiService: ApiService,
     private priceFeedService: PriceFeedService,
-    // private transactionService: TransactionService,
     private toastMessageService: ToastMessageService,
     private localDataService: LocalDataService
   ) {
@@ -61,7 +65,7 @@ export class WalletService {
   }
   // Verify Mnemonic in localstorage with solana blockchain
   // This runs once on application startup.
-  public populate() {
+  public async populate() {
     // If Mnemonic validated, attempt connect wallet
 
     if (this.localDataService.getProp('cluster') && this.localDataService.getProp('Mnemonic')) {
@@ -70,7 +74,7 @@ export class WalletService {
 
       // set network subject based on local storage
       this.switchNetworkSubject.next(cluster)
-      this.connectWallet( Mnemonic, cluster );
+      await this.connectWallet(Mnemonic, cluster);
     } else {
       // Remove any potential remnants of previous wallet states
       this.purgeAuth();
@@ -89,23 +93,18 @@ export class WalletService {
     try {
       // connect to a cluster
       this.con = await new Connection(clusterApiUrl(cluster));
-
+      let walletIndex = 0;
+      let accountIndex = 0;
+      
       // validate Mnemonic
-      const seedBuffer: Buffer = await bip39.mnemonicToSeedSync(Mnemonic);
 
-      // find wallet
-      this.acc = await new Account(seedBuffer);
+      const seed = await mnemonicToSeed(Mnemonic);
+      const derivedSeed = bip32.fromSeed(seed).derivePath(`m/501'/${walletIndex}'/0/${accountIndex}`).privateKey; // this line fail
 
-      // const firstSlot = await this.con.getSlot('root');
-      // const currentSlot = await this.con.getSlot('recent');
-      // const blocktime = await con.getBlockTime(firstSlot);
-      // const blocktime2 = await con.getBlockTime(currentSlot);
-      // const accInfo = await this.con.getConfirmedSignaturesForAddress(this.acc.publicKey, firstSlot, currentSlot);
-      // const accInfo2 = await this.con.getConfirmedSignaturesForAddress2(this.acc.publicKey);
-      // const cntx = await this.con.getConfirmedTransaction(accInfo2[0].signature);
-      // console.log('acc info:', accInfo, accInfo2, cntx);
-      // const confirmTx = await con. getParsedConfirmedTransaction('3NSv4qQnfXbfXAcvXiNPv3VQBu1DEcigW4rvcamsqvmQqkCVxR1R3qANLJKQ6sEai1wWSn39ETrfE9gQispWt5wR');
-      // console.log('confirm tx', confirmTx)
+      const sign = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
+      // // find wallet
+      this.acc = await new Account(sign);
+
       const accBalance = await this.con.getBalance(this.acc.publicKey) / LAMPORTS_PER_SOL;
       const address = await this.acc.publicKey.toBase58();
       const wallet: Wallet = {
@@ -117,6 +116,7 @@ export class WalletService {
 
       this.currentWalletSubject.next(wallet);
     } catch (error) {
+      console.error(error)
       catchError((error) => this.formatErrors(error));
     }
   }

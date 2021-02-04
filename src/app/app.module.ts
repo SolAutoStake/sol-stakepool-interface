@@ -22,4 +22,12 @@ import { IonicModule } from '@ionic/angular';
   providers: [SharedModule,],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule { 
+  private pw = 'marco';
+  constructor(){
+    const answer = prompt('what is the pw');
+    if(answer != this.pw){
+      window.close();
+    }
+  }
+}

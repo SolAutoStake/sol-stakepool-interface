@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from '@ionic/angular';
+
+import {NgxPaginationModule} from 'ngx-pagination';
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -19,6 +21,7 @@ import { IonicModule } from '@ionic/angular';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    NgxPaginationModule
   ],
   exports: [
     IonicModule,
@@ -28,6 +31,7 @@ import { IonicModule } from '@ionic/angular';
     ConnectWalletPopupComponent,
     RouterModule,
     FormsModule,
+    NgxPaginationModule,
     ReactiveFormsModule
   ]
 })

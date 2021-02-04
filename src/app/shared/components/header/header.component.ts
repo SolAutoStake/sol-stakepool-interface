@@ -53,7 +53,6 @@ export class HeaderComponent implements OnInit {
   }
 
   public myWallet() {
-    console.log(this.walletService.getCurrentCluster())
     window.open(`https://explorer.solana.com/address/${this.wallet.address}?cluster=${this.walletService.getCurrentCluster()}`);
   }
 

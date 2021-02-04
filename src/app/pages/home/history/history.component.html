@@ -1,28 +1,27 @@
-<ion-card id="wallet-card">
-    <ion-card-title id="wallet-card-title">Transaction history</ion-card-title>
-    <div id="wallet-list">
-        <div id="wallet-list-head">
-            <div>txn hash</div>
-            <div>block</div>
-            <div>Value</div>
-            <div>from</div>
-            <div>to</div>
-        </div>
-        <div id="wallet-list-body">
-            <div class="token">
-                <a>{{ utilsService.shortenAddress('BYBRabZzVXw3NXXSk3YBwmK215Qc5muVR9Lh75ibKtpG')}}</a>
-                <div>62302063</div>
-                <div>20SOL (65.44$)</div>
-                <div>{{ utilsService.shortenAddress('BYBRabZzVXw3NXXSk3YBwmK215Qc5muVR9Lh75ibKtpG') }}<fa-icon [icon]="copyAddress"></fa-icon></div>
-                <div>{{ utilsService.shortenAddress('CF8mpXWqYugqmNn5TGtx3aAM9qG79Npsu44Th9oTpwor') }}<fa-icon [icon]="copyAddress"></fa-icon></div>
-            </div>
-            <div class="token">
-                <a>{{ utilsService.shortenAddress('BYBRabZzVXw3NXXSk3YBwmK215Qc5muVR9Lh75ibKtpG') }}</a>
-                <div>9187163</div>
-                <div>8SRM (21.44$)</div>
-                <div>{{ utilsService.shortenAddress('BYBRabZzVXw3NXXSk3YBwmK215Qc5muVR9Lh75ibKtpG') }}<fa-icon [icon]="copyAddress"></fa-icon></div>
-                <div>{{ utilsService.shortenAddress('CF8mpXWqYugqmNn5TGtx3aAM9qG79Npsu44Th9oTpwor') }}<fa-icon [icon]="copyAddress"></fa-icon></div>
+<ion-card id="history-card">
+    <ion-card-title id="history-card-title">
+        <fa-icon [icon]="txBook"></fa-icon>Transaction history
+    </ion-card-title>
+
+    <div id="history-list-head">
+        <div>txn hash</div>
+        <div>block</div>
+        <div>Value</div>
+        <div>from</div>
+        <div>to</div>
+    </div>
+    <div id="history-list-body" *ngIf="txHistory">
+        <div id="record-list">
+            <div class="record" *ngFor="let dataset of txHistory | paginate: { itemsPerPage: 5, currentPage: p}">
+                <a (click)="openTxRecord(dataset.signature)">{{ utilsService.shortenSignature(dataset.signature, 5)}}</a>
+                <div>{{dataset.block}}</div>
+                <div>{{dataset.amount}}</div>
+                <div>{{ utilsService.shortenAddress(dataset.from) }}<fa-icon [icon]="copyAddress"></fa-icon>
+                </div>
+                <div>{{ utilsService.shortenAddress(dataset.to) }}<fa-icon [icon]="copyAddress"></fa-icon>
+                </div>
             </div>
         </div>
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
     </div>
 </ion-card>
