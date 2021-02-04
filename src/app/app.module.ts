@@ -23,11 +23,5 @@ import { IonicModule } from '@ionic/angular';
   bootstrap: [AppComponent]
 })
 export class AppModule { 
-  private pw = 'marco';
-  constructor(){
-    const answer = prompt('what is the pw');
-    if(answer != this.pw){
-      window.close();
-    }
-  }
+
 }
