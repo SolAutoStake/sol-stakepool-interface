@@ -20,17 +20,18 @@ export class WalletComponent implements OnInit {
   public solanaUsdBalance = 0;
   constructor(
     public popoverController: PopoverController, 
-    private walletService: WalletService,
+    public walletService: WalletService,
      private priceFeedService: PriceFeedService,
     private toastMessageService: ToastMessageService) { }
 
   async ngOnInit(): Promise<void> {
-    setTimeout(async() => {
-      
-      const priceFeed = await this.priceFeedService.getPriceList();
-      this.balance = await this.walletService.con.getBalance(this.walletService.acc.publicKey) / LAMPORTS_PER_SOL;
-      this.solanaUsdBalance = priceFeed.solana.usd * this.balance;
-    }, 1000);
+    this.walletService.currentWallet$.subscribe( async wallet => {
+      if(wallet != null){
+        const priceFeed = await this.priceFeedService.getPriceList();
+        this.balance = await this.walletService.con.getBalance(this.walletService.acc.publicKey) / LAMPORTS_PER_SOL;
+        this.solanaUsdBalance = priceFeed.solana.usd * this.balance;
+      }
+    })
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

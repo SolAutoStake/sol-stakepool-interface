@@ -8,9 +8,9 @@
             <div>Action</div>
         </div>
         <div id="wallet-list-body">
-            <div class="token">
+            <div class="token" *ngIf="walletService.currentWallet$ | async">
                 <div>SOL</div>
-                <div>{{balance}} <small>({{solanaUsdBalance.toFixed(2)}}$)</small></div>
+                <div>{{balance.toFixed(2)}} <small>({{solanaUsdBalance.toFixed(2)}}$)</small></div>
                 <div>
                     <fa-icon [icon]="xMark"></fa-icon>
                 </div>

@@ -16,9 +16,12 @@ export class HistoryComponent implements OnInit {
   constructor(public utilsService:UtilsService,private walletService:WalletService, private transactionService:TransactionService) { }
 
   async ngOnInit(): Promise<void> {
-    this.walletService.switchNetworkSubject.subscribe(async val=>{
-     setTimeout(async () => this.txHistory = await this.transactionService.getWalletHistory(), 1000);
+    this.walletService.currentWallet$.subscribe( async wallet => {
+      if(wallet != null){
+        this.txHistory = await this.transactionService.getWalletHistory()
+      }
     })
+
   }
   openTxRecord(signature: string){
     window.open(`https://explorer.solana.com/tx/${signature}?cluster=${this.walletService.getCurrentCluster()}`);
