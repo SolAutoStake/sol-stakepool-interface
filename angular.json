@@ -194,6 +194,10 @@
               "browserTarget": "ng-sol-stake-interface:build:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {}
         }
       }
     }
