@@ -1,9 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { IonInput, PopoverController } from '@ionic/angular';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { PriceFeedService } from 'src/app/services/price-feed.service';
 import { TransactionService } from 'src/app/services/transaction.service';
-import { WalletService } from 'src/app/services/wallet.service';
 
 @Component({
   selector: 'app-send-token-popup',
