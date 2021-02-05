@@ -22,7 +22,6 @@ export class SendTokenPopupComponent implements OnInit {
   transferSol(){
     const address: PublicKey = new PublicKey(this.address.value);
     const amount = Number(this.amount.value) * LAMPORTS_PER_SOL;
-    console.log(address, amount);
     if(address && amount)
     this.transactionService.transfer(address, amount);
     this.popoverController.dismiss();
