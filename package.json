@@ -1,5 +1,5 @@
 {
-  "name": "sol-stake-interface",
+  "name": "sol-stakepool-interface",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
