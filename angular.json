@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-sol-stake-interface": {
+    "sol-stake-interface": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ng-sol-stake-interface",
+            "outputPath": "dist/sol-stake-interface",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -115,18 +115,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "ng-sol-stake-interface:build"
+            "browserTarget": "sol-stake-interface:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ng-sol-stake-interface:build:production"
+              "browserTarget": "sol-stake-interface:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ng-sol-stake-interface:build"
+            "browserTarget": "sol-stake-interface:build"
           }
         },
         "test": {
@@ -163,35 +163,35 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "ng-sol-stake-interface:serve"
+            "devServerTarget": "sol-stake-interface:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "ng-sol-stake-interface:serve:production"
+              "devServerTarget": "sol-stake-interface:serve:production"
             }
           }
         },
         "ionic-cordova-serve": {
           "builder": "@ionic/angular-toolkit:cordova-serve",
           "options": {
-            "cordovaBuildTarget": "ng-sol-stake-interface:ionic-cordova-build",
-            "devServerTarget": "ng-sol-stake-interface:serve"
+            "cordovaBuildTarget": "sol-stake-interface:ionic-cordova-build",
+            "devServerTarget": "sol-stake-interface:serve"
           },
           "configurations": {
             "production": {
-              "cordovaBuildTarget": "ng-sol-stake-interface:ionic-cordova-build:production",
-              "devServerTarget": "ng-sol-stake-interface:serve:production"
+              "cordovaBuildTarget": "sol-stake-interface:ionic-cordova-build:production",
+              "devServerTarget": "sol-stake-interface:serve:production"
             }
           }
         },
         "ionic-cordova-build": {
           "builder": "@ionic/angular-toolkit:cordova-build",
           "options": {
-            "browserTarget": "ng-sol-stake-interface:build"
+            "browserTarget": "sol-stake-interface:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ng-sol-stake-interface:build:production"
+              "browserTarget": "sol-stake-interface:build:production"
             }
           }
         },
@@ -202,5 +202,5 @@
       }
     }
   },
-  "defaultProject": "ng-sol-stake-interface"
+  "defaultProject": "sol-stake-interface"
 }
