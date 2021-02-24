@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { IonInput, PopoverController } from '@ionic/angular';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Connection, TransactionInstruction , Transaction, sendAndConfirmTransaction} from '@solana/web3.js';
+import { ToastMessageService } from 'src/app/services/toast-message.service';
 import { TransactionService } from 'src/app/services/transaction.service';
 import { WalletService } from 'src/app/services/wallet.service';
 
@@ -12,44 +13,41 @@ import { WalletService } from 'src/app/services/wallet.service';
 export class SendTokenPopupComponent implements OnInit {
   @ViewChild('addressInput') address: IonInput;
   @ViewChild('amountInput') amount: IonInput;
+  sendBtnClicked: boolean = false;
   constructor(
     private transactionService: TransactionService,
     private walletService: WalletService,
     public popoverController: PopoverController,
+    private toastMessageService:ToastMessageService
   ) { }
 
   async ngOnInit(): Promise<void> {
 
   }
   async transferSol() {
-    const toPubkey: PublicKey = new PublicKey(this.address.value);
+    let address;
+    try {
+       address = new PublicKey(this.address.value);
+      
+    } catch (error) {
+      this.toastMessageService.msg.next({ message: 'public key not valid', segmentClass: 'toastError' });
+      return
+    }
+
     const amount = Number(this.amount.value) * LAMPORTS_PER_SOL;
-    const connection = this.walletService.con;
-    // if (toPubkey && amount) {
-
-    //   // this.transactionService.transfer(address, amount);
-    //   // this.popoverController.dismiss();
-
-
-    //   try {
-    //     const txParam: TransactionInstruction = SystemProgram.transfer({
-    //       fromPubkey: this.walletService.currentWallet$,
-    //       toPubkey,
-    //       lamports: 100,
-    //     })
-  
-    //     const { blockhash } = await connection.getRecentBlockhash('max');
-    //     const tx: Transaction = new Transaction({ feePayer: fromPubkey.publicKey, recentBlockhash: blockhash }).add(txParam);
-  
-
-    //     const txid = await sendAndConfirmTransaction(this.walletService.con, tx, [fromPubkey], {
-    //       commitment: 'singleGossip',
-    //     });
-    //     await connection.confirmTransaction(txid);
-    //   } catch (e) {
-    //     console.warn(e);
-    //   }
-    // }
+    if (address && amount) {
+      try {
+        this.transactionService.transfer(address,amount);
+        this.sendBtnClicked = true;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
   }
 
+  ngOnDestroy(): void {
+    //Called once, before the instance is destroyed.
+    //Add 'implements OnDestroy' to the class.
+    this.sendBtnClicked = false;
+  }
 }

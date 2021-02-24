@@ -3,6 +3,7 @@
         <fa-icon [icon]="listIcon"></fa-icon>validators
     </ion-card-title>
 
+    <ng-container *ngIf="validatorsData; else emptyState">
     <div id="promoted-validator" *ngIf="getPromotedValidator">
         <div id="promoted-title">validator of the day</div>
         <div id="group-validator">
@@ -16,29 +17,33 @@
         </div>
     </div>
     <app-search-input (search)="searchTerm = $event" [placeholder]="'search validator'"></app-search-input>
-    <div id="area-list">
-        <div id="area-list-head">
-            <div>name</div>
-            <div>stake</div>
-            <div>fee</div>
-            <div>software ver</div>
-            <div>perfomance score</div>
-            <div>action</div>
-        </div>
-        <div id="area-list-body" *ngIf="validatorsData">
-            <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
-            <div class="item"
-                *ngFor="let item of validatorsData | filter:searchTerm ">
-                <div><a href="_blank" [href]="item.www_url">{{ item.name }}</a></div>
-                <div>{{item.active_stake.toLocaleString('en-IN')}}</div>
-                <div>{{ item.commission }}%</div>
-                <div>{{ item.software_version }}</div>
-                <div>{{ item.total_score }}</div>
+        <div id="area-list">
+            <div id="area-list-head">
+                <div>name</div>
+                <div>stake</div>
+                <div>fee</div>
+                <div>software ver</div>
+                <div>perfomance score</div>
+                <div>action</div>
+            </div>
+            <div id="area-list-body" *ngIf="validatorsData">
+                <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
+                <div class="item" *ngFor="let item of validatorsData | filter:searchTerm ">
+                    <div><a href="_blank" [href]="item.www_url">{{ item.name }}</a></div>
+                    <div>{{item.active_stake.toLocaleString('en-IN')}}</div>
+                    <div>{{ item.commission }}%</div>
+                    <div>{{ item.software_version }}</div>
+                    <div>{{ item.total_score }}</div>
 
-                <div class="area-actions">
-                    <ion-button fill="outline" color (click)="openDelagatePopup(item)">delegate</ion-button>
+                    <div class="area-actions">
+                        <ion-button fill="outline" color (click)="openDelagatePopup(item)">delegate</ion-button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </ng-container>
+    <ng-template #emptyState>
+        <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
+        <app-empty-state></app-empty-state>
+    </ng-template>
 </ion-card>

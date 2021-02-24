@@ -8,13 +8,15 @@ import { ToastMessageService } from './toast-message.service';
 import {
   Account,
   Connection,
+  Cluster,
   clusterApiUrl,
   PublicKey,
   ConfirmedSignatureInfo,
   ConfirmedTransaction,
   LAMPORTS_PER_SOL,
-  Cluster,
 } from '@solana/web3.js';
+import Wallet from "@project-serum/sol-wallet-adapter";
+import { PopoverController } from '@ionic/angular';
 
 export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
 
@@ -32,27 +34,35 @@ export class WalletService {
     { name: "devnet" as ENV, endpoint: clusterApiUrl("devnet") },
     // { name: "localnet" as ENV, endpoint: "http://127.0.0.1:8899" },
   ];
-
+  public WALLET_PROVIDERS = [
+    { name: "sollet.io", url: "https://www.sollet.io" },
+    { name: 'bonfida', url: 'https://bonfida.com/wallet' }
+  ];
 
   public con: Connection = null;
-  public acc: Account = null;
-  private currentWalletSubject = new Subject<Account>()
-  public currentWallet$: Observable<Account> = this.currentWalletSubject
+
+  public walletController = null
+  private currentWalletSubject = new Subject<PublicKey>();
+  public currentWallet$: Observable<PublicKey> = this.currentWalletSubject
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  public switchNetworkSubject = new BehaviorSubject<Cluster>('mainnet-beta' as Cluster);
+  public networkSubject = new BehaviorSubject<any>(this.ENDPOINTS[0] as any);
+  public providerSubject = new BehaviorSubject<any>(this.WALLET_PROVIDERS[0] as any);
 
-  public getCurrentCluster(): Cluster {
-    return this.switchNetworkSubject.value;
-  }
-
+  
   constructor(
     private apiService: ApiService,
     private toastMessageService: ToastMessageService,
     private localDataService: LocalDataService
   ) {
-
+    this.networkSubject.subscribe(async val => {
+      console.log(val);
+      this.con = await new Connection(this.networkSubject.value.endpoint);
+      if (this.walletController) {
+        await this.disconnectFromWallet()
+      }
+    });
   }
   // catch error
   private formatErrors(error: any) {
@@ -60,32 +70,24 @@ export class WalletService {
     return throwError(error);
   }
 
-
-
-  // Verify Mnemonic in localstorage with solana blockchain
-  // This runs once on application startup.
-  public async populate() {
-    // If Mnemonic validated, attempt connect wallet
-
-    if (this.localDataService.getProp('cluster') && this.localDataService.getProp('Mnemonic')) {
-      const cluster: any = this.localDataService.getProp('cluster');
-      const Mnemonic: string = this.localDataService.getProp('Mnemonic').toString();
-
-      // set network subject based on local storage
-      this.switchNetworkSubject.next(cluster)
-      await this.connectWallet(Mnemonic, cluster);
-    } else {
-      // Remove any potential remnants of previous wallet states
-      this.purgeAuth();
-    }
+  async connectWithProvider() {
+    const network = this.networkSubject.value
+    const walletProvider = this.providerSubject.value;
+    this.walletController = new Wallet(walletProvider.url, network.endpoint);
+    this.walletController.on('connect', publicKey => {
+      this.currentWalletSubject.next(publicKey)
+      this.toastMessageService.msg.next({ message: 'wallet connected', segmentClass: 'toastInfo' });
+    });
+    this.walletController.on('disconnect', () => {
+      this.toastMessageService.msg.next({ message: 'wallet disconnected', segmentClass: 'toastInfo' })
+    });
+    await this.walletController.connect();
   }
-
-  private purgeAuth() {
-    // Remove local stored wallet credentials from localstorage
-    this.localDataService.destroyProp('cluster');
-    this.localDataService.destroyProp('Mnemonic');
+  private async disconnectFromWallet() {
+    await this.walletController.disconnect()
     this.currentWalletSubject.next(null);
   }
+
   async getWalletHistory(walletPubKey: PublicKey) {
     try {
       const signatures: ConfirmedSignatureInfo[] = await this.con.getConfirmedSignaturesForAddress2(walletPubKey);
@@ -104,25 +106,10 @@ export class WalletService {
       });
       return walletHistory;
     } catch (error) {
-      // this.toastMessageService.msg.next({ message: 'failed to retrieve transaction history', segmentClass: 'toastError' })
+      this.toastMessageService.msg.next({ message: 'failed to retrieve transaction history', segmentClass: 'toastError' })
     }
   }
 
-
-  public async connectWallet(Mnemonic: string, derivationPath?: string): Promise<any> {
-    this.con = await new Connection(clusterApiUrl(this.switchNetworkSubject.value));
-    try {
-      this.acc = await this.localDataService.getAccountFromSeed(Mnemonic)
-      this.localDataService.saveProp('cluster', this.switchNetworkSubject.value);
-      this.localDataService.saveProp('Mnemonic', Mnemonic);
-
-      this.currentWalletSubject.next(this.acc);
-      console.log(this.acc)
-    } catch (error) {
-      console.error(error)
-      catchError((error) => this.formatErrors(error));
-    }
-  }
 
   public getStakeAccountsByOwner(): Observable<any> {
     var raw = {
@@ -138,14 +125,14 @@ export class WalletService {
             {
               "memcmp": {
                 "offset": 12,
-                "bytes": this.acc.publicKey.toBase58()
+                "bytes": this.walletController.publicKey.toBase58()
               }
             }
           ]
         }
       ]
     }
-    return this.apiService.post(clusterApiUrl(this.switchNetworkSubject.value), raw).pipe(
+    return this.apiService.post(this.networkSubject.value.endpoint, raw).pipe(
       map((data) => {
         return data.result;
       }),

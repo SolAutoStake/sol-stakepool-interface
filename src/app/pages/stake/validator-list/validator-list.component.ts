@@ -31,8 +31,11 @@ export class ValidatorListComponent implements OnInit {
 
   public getPromotedValidator = null;
   async ngOnInit() {
-    this.walleService.switchNetworkSubject.subscribe(async () => {
-      this.pullValidatorsInfo()
+    this.walleService.currentWallet$.subscribe(async (wallet) => {
+      if (wallet) {
+        console.log(wallet);
+        this.pullValidatorsInfo()
+      }
     })
   }
 
@@ -47,7 +50,7 @@ export class ValidatorListComponent implements OnInit {
       component: DelegatePopupComponent,
       cssClass: "transfer-token-popup",
       animated: true,
-      componentProps: {selectedValidator}
+      componentProps: { selectedValidator }
     });
     return await popover.present();
   }

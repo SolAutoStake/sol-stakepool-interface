@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { WalletService } from 'src/app/services/wallet.service';
 
 @Component({
   selector: 'app-home',
@@ -6,11 +7,16 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-
-  constructor() {
+  public currentWallet = null;
+  constructor(private walletService: WalletService) {
    }
 
-  ngOnInit(): void {
-  }
+   ngOnInit(){
+    this.walletService.currentWallet$.subscribe(async (wallet) => {
+      console.log(wallet)
+      this.currentWallet = wallet
+    })
+   }
+
 
 }

@@ -32,20 +32,20 @@ export class DelegatePopupComponent implements OnInit {
     this.popoverController.dismiss();
   }
   startDelegate(){
-    const votePubkey = new PublicKey(this.selectedValidator.vote_account);
-    const stakePubkey = new PublicKey(this.selectedStakeAcc.publicKey);
-    const authorized = this.walleService.acc
+    // const votePubkey = new PublicKey(this.selectedValidator.vote_account);
+    // const stakePubkey = new PublicKey(this.selectedStakeAcc.publicKey);
+    // const authorized = this.walleService.acc
 
-    let delegation = StakeProgram.delegate({
-      stakePubkey,
-      authorizedPubkey: authorized.publicKey,
-      votePubkey,
-    });
-    let tx = StakeProgram.delegate({
-        stakePubkey,
-        authorizedPubkey: authorized.publicKey,
-        votePubkey,
-      });
+    // let delegation = StakeProgram.delegate({
+    //   stakePubkey,
+    //   authorizedPubkey: authorized.publicKey,
+    //   votePubkey,
+    // });
+    // let tx = StakeProgram.delegate({
+    //     stakePubkey,
+    //     authorizedPubkey: authorized.publicKey,
+    //     votePubkey,
+    //   });
     // this.transactionService.delegate()
   }
 }

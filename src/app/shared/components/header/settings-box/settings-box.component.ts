@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { faWifi } from '@fortawesome/free-solid-svg-icons';
-import { Cluster } from '@solana/web3.js';
-import { LocalDataService } from 'src/app/services/local-data.service';
+import { IonSelect } from '@ionic/angular';
 import { WalletService } from 'src/app/services/wallet.service';
 
 @Component({
@@ -11,19 +10,16 @@ import { WalletService } from 'src/app/services/wallet.service';
 })
 export class SettingsBoxComponent implements OnInit {
   public networks = faWifi;
-  public cluster = this.walletService.getCurrentCluster()
-  constructor(public walletService: WalletService, private localDataService: LocalDataService) { }
+  public cluster = this.walletService.networkSubject.value
+  public provider = this.walletService.providerSubject.value;
+  constructor(public walletService: WalletService) { }
 
   ngOnInit(): void {
-  console.log('cluster', this.cluster);
   }
-  async onClusterChange($event) {
-    const cluster: Cluster = $event.detail.value;
-    this.walletService.switchNetworkSubject.next(cluster)
-    // if wallet already connected then change network
-    if (this.localDataService.getProp('Mnemonic')) {
-      const Mnemonic = this.localDataService.getProp('Mnemonic').toString();
-      await this.walletService.connectWallet(Mnemonic, cluster);
-    }
+  onClusterChange(ev) {
+    this.walletService.networkSubject.next(ev.detail.value)
+  }
+  onProviderChange(ev) {
+    this.walletService.providerSubject.next(ev.detail.value)
   }
 }

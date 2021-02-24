@@ -17,7 +17,7 @@ export class ValidatorsInfoService {
     return throwError(error);
   }
   getValidatorsInfo(){
-    return this.apiService.get(`${this.solValidatorsApi}?network=${this.walleService.switchNetworkSubject.value}&order=score&limit=100`).pipe(
+    return this.apiService.get(`${this.solValidatorsApi}?network=${this.walleService.networkSubject.value.name}&order=score&limit=100`).pipe(
       map((validatorMetrics) => {
         // Update the currentUser observable
         return validatorMetrics;

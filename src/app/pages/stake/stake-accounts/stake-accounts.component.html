@@ -1,5 +1,13 @@
 <ion-card id="area-card">
-    <ion-card-title id="area-card-title"><fa-icon [icon]="stakeAccIcon"></fa-icon>stake accounts</ion-card-title>
+    <div id="area-head">
+        <ion-card-title id="area-card-title">
+            <ion-icon name="people"></ion-icon>stake accounts
+        </ion-card-title>
+        <div *ngIf="stakeAccounts">
+            <ion-icon id="create-stake-account" name="person-add" (click)="openNewStakeAccountPopup()"></ion-icon>
+        </div>
+    </div>
+    <ng-container *ngIf="stakeAccounts; else emptyState">
     <div id="area-list">
         <div id="area-list-head">
             <div>address</div>
@@ -8,17 +16,25 @@
             <div>Action</div>
         </div>
         <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
-        <div id="area-list-body" *ngIf="stakeAccounts$ | async">
-            <div class="item" *ngFor="let account of stakeAccounts$ | async |filter:searchTerm ">
+        <div id="area-list-body" *ngIf="stakeAccounts">
+            <div class="item" *ngFor="let account of stakeAccounts | filter:searchTerm ">
                 <!-- <small>{{usdPrice(account.account.lamports / LAMPORTS_PER_SOL)}}</small> -->
                 <div>{{utilsService.shortenAddress(account.pubkey)}}</div>
-                <div>{{account.account.lamports / LAMPORTS_PER_SOL}} <small>{{utilsService.solanaUsdPrice(account.account.lamports / LAMPORTS_PER_SOL)}}</small> </div>
+                <div>{{account.account.lamports / LAMPORTS_PER_SOL}}
+                    <small>{{utilsService.solanaUsdPrice(account.account.lamports / LAMPORTS_PER_SOL)}}</small> </div>
                 <div>{{account.account.data.parsed.type}}</div>
                 <div class="area-actions">
-                    <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'initialized'" (click)="withdrawFundsFromStakeAcc(account)">withdraw</ion-button>
-                    <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'delegated'" (click)="undelegate(account)">undelegate</ion-button>
+                    <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'initialized'"
+                        (click)="withdrawFundsFromStakeAcc(account)">withdraw</ion-button>
+                    <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'delegated'"
+                        (click)="undelegate(account)">undelegate</ion-button>
                 </div>
             </div>
         </div>
     </div>
+</ng-container>
+<ng-template #emptyState>
+    <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
+    <app-empty-state></app-empty-state>
+</ng-template>
 </ion-card>

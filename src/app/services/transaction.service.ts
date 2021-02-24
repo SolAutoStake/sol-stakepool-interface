@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
 import {
   Account,
   Connection,
@@ -27,9 +28,8 @@ import { WalletService } from './wallet.service';
 })
 export class TransactionService {
 
-  constructor(private walletService: WalletService, private toastMessageService: ToastMessageService) {
-
-    // console.log(this.walletService.acc.publicKey)
+  constructor(private walletService: WalletService, private toastMessageService: ToastMessageService,
+    public popoverController: PopoverController) {
   }
   private formatErrors(error: any) {
     this.toastMessageService.msg.next({ message: error, segmentClass: 'toastError' })
@@ -40,7 +40,6 @@ export class TransactionService {
     const { blockhash } = await this.walletService.con.getRecentBlockhash('max');
     const currentTxFee = (await this.walletService.con.getFeeCalculatorForBlockhash(blockhash)).value.lamportsPerSignature
     const balanceCheck = amountToSend < balance + currentTxFee ? true : false;
-    console.log(amountToSend, balance);
     if (!balanceCheck) {
       this.formatErrors('no balance')
       return false;
@@ -49,9 +48,10 @@ export class TransactionService {
     return true
   }
 
-  async transfer(toPubkey: PublicKey, lamports: any) {
+  async transfer(toPubkey: any, lamports: any) {
+    // const toPubkey = new PublicKey(address);
     const connection: Connection = this.walletService.con;
-    const wallet: Account = this.walletService.acc;
+    const wallet = this.walletService.walletController;
 
     const isValid = await this.verifyBalance(lamports, wallet.publicKey);
     if (isValid) {
@@ -62,86 +62,15 @@ export class TransactionService {
         lamports,
       })
 
-      const { blockhash } = await connection.getRecentBlockhash('max');
-      const tx: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
-
-      this.sendTx(tx, wallet)
+      this.sendTx(txParam);
     }
-  }
 
-  async delegate(stakeAccParam, delegateAccParam) {
-    const connection: Connection = this.walletService.con;
-    const wallet: Account = this.walletService.acc;
-    const { blockhash } = await connection.getRecentBlockhash('max');
-
-    const stakeAcc: Transaction = StakeProgram.createAccount(stakeAccParam);
-    const delegateInstruction: Transaction = StakeProgram.delegate(delegateAccParam)
-    const ins: Transaction[] = [stakeAcc, delegateInstruction]
-    const tx: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...ins);
-    console.log(tx);
-    try {
-      const txid = await sendAndConfirmTransaction(connection, tx, [wallet], {
-        commitment: 'singleGossip',
-      });
-      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-      console.log(txid);
-      return true;
-    } catch (error) {
-      console.error(error);
-      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
-    }
-  }
-
-  async withdrawFromStakeAccount(stakeAccountPubKey, lamports: number) {
-    const connection: Connection = this.walletService.con;
-    const wallet: Account = this.walletService.acc;
-    const isValid = await this.verifyBalance(lamports, stakeAccountPubKey);
-    if (isValid) {
-      const authorizedPubkey = this.walletService.acc.publicKey
-      const toPubkey = authorizedPubkey;
-      const params = {
-        stakePubkey: stakeAccountPubKey,
-        authorizedPubkey,
-        toPubkey,
-        lamports,
-      };
-      const tx = StakeProgram.withdraw(params);
-      this.sendTx(tx, wallet)
-    }
-  }
-
-  async undelegateFromVoteAccount(stakePubkey) {
-    const connection: Connection = this.walletService.con;
-    const wallet: Account = this.walletService.acc;
-
-    const authorizedPubkey =  wallet.publicKey;
-    const params = { stakePubkey, authorizedPubkey };
-    const tx = StakeProgram.deactivate(params);
-
-    this.sendTx(tx, wallet)
-  }
-
-  private async sendTx(tx, wallets) {
-    try {
-      const txid = await sendAndConfirmTransaction(this.walletService.con, tx, [wallets], {
-        commitment: 'singleGossip',
-      });
-      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-      await this.confirmTransaction(txid)
-      this.toastMessageService.msg.next({ message: 'transaction done', segmentClass: 'toastInfo' });
-      console.log(txid);
-      return true;
-    } catch (error) {
-      console.error(error);
-      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
-    }
   }
   public async createStakeAccount(sol: number) {
-    const wallet = this.walletService.acc;
+    const wallet = this.walletService.walletController;
     const con = this.walletService.con;
-
+    console.log(wallet)
     try {
-
       const minimumAmount = await con.getMinimumBalanceForRentExemption(
         StakeProgram.space,
       );
@@ -155,7 +84,7 @@ export class TransactionService {
         lamports: minimumAmount + sol * LAMPORTS_PER_SOL,
       });
 
-      this.sendTx(tx, wallet)
+      this.sendTx(tx.instructions[0])
 
     }
     catch (err) {
@@ -163,26 +92,76 @@ export class TransactionService {
     }
 
   }
-  private confirmTransaction(signature): Promise<void> {
-    let subscriptionId;
-    let response: RpcResponseAndContext<SignatureResult> | null = null;
-    return new Promise((resolve, reject) => {
-      try {
-        subscriptionId = this.walletService.con.onSignature(
-          signature,
-          async (result, context) => {
-            subscriptionId = undefined;
-            response = {
-              context,
-              value: result,
-            };
-            resolve();
-          },
-          'max',
-        );
-      } catch (err) {
-        reject(err);
-      }
-    });
+  async delegate(stakeAccParam, delegateAccParam) {
+    // const connection: Connection = this.walletService.con;
+    // const wallet: Account = this.walletService.acc;
+    // const { blockhash } = await connection.getRecentBlockhash('max');
+
+    // const stakeAcc: Transaction = StakeProgram.createAccount(stakeAccParam);
+    // const delegateInstruction: Transaction = StakeProgram.delegate(delegateAccParam)
+    // const ins: Transaction[] = [stakeAcc, delegateInstruction]
+    // const tx: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...ins);
+    // console.log(tx);
+    // try {
+    //   const txid = await sendAndConfirmTransaction(connection, tx, [wallet], {
+    //     commitment: 'singleGossip',
+    //   });
+    //   this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
+    //   console.log(txid);
+    //   return true;
+    // } catch (error) {
+    //   console.error(error);
+    //   this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
+    // }
   }
+
+  async withdrawFromStakeAccount(stakeAccountPubKey, lamports: number) {
+    // const connection: Connection = this.walletService.con;
+    // const wallet = this.walletService.walletController;
+    // const isValid = await this.verifyBalance(lamports, stakeAccountPubKey);
+    // if (isValid) {
+    //   const authorizedPubkey = wallet.publicKey
+    //   const toPubkey = authorizedPubkey;
+    //   const params = {
+    //     stakePubkey: stakeAccountPubKey,
+    //     authorizedPubkey,
+    //     toPubkey,
+    //     lamports,
+    //   };
+    //   const tx = StakeProgram.withdraw(params);
+    //   this.sendTx(tx, wallet)
+    // }
+  }
+
+  async undelegateFromVoteAccount(stakePubkey) {
+    // const connection: Connection = this.walletService.con;
+    // const wallet: Account = this.walletService.acc;
+
+    // const authorizedPubkey = wallet.publicKey;
+    // const params = { stakePubkey, authorizedPubkey };
+    // const tx = StakeProgram.deactivate(params);
+
+    // this.sendTx(tx, wallet)
+  }
+
+  private async sendTx(txParam) {
+    const connection: Connection = this.walletService.con;
+    const wallet = this.walletService.walletController;
+    try {
+
+      const { blockhash } = await connection.getRecentBlockhash('max');
+      const transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
+      const signed = await wallet.signTransaction(transaction);
+      this.popoverController.dismiss()
+      const txid = await connection.sendRawTransaction(signed.serialize());
+      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
+      const confirmTx = await connection.confirmTransaction(txid, 'max');
+      this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
+    } catch (error) {
+      console.error(error)
+      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
+    }
+  }
+
+
 }

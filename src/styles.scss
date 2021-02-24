@@ -44,6 +44,8 @@ fa-icon{
 #area-card-title{
   font-size: 24px;
   text-transform: capitalize;
+  display: flex;
+  align-items: center;
 }
 #area-list-head,.item {
   display: flex;
@@ -127,7 +129,7 @@ ion-popover.connect-wallet-popover, ion-popover.transfer-token-popup {
     --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
   }
   .toastSuccess {
-    --background: var(--sol-stake-active);
+    --background: var(--sol-stake-succ);
     --box-shadow: 0 8px 16px 0 rgba(199, 30, 255, 0.24);
   }
   

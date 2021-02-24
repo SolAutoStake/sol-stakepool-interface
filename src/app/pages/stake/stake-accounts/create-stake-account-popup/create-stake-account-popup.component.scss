@@ -16,19 +16,9 @@ ion-card{
         font-weight: bold;
         --padding-bottom: 0;
     }
-    ion-range{
-        --knob-background: var(--sol-stake-active);
-        --bar-background: var(--sol-stake-prime);
-    }
     small{
         display: block;
         text-align: center;
-    }
-}
-#address-group{
-    ion-input{   
-        border: 1px dashed var(--sol-stake-active);
-        font-size: 12px;
     }
 }
 

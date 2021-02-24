@@ -5,8 +5,7 @@ import {
   HeaderComponent,
   SearchInputComponent,
   EmptyStateComponent,
-  SettingsBoxComponent,
-  ConnectWalletPopupComponent
+  SettingsBoxComponent
 } from './components';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -21,7 +20,6 @@ import { CopyToClipboardDirective } from './directives/copy-to-clipboard.directi
     FilterPipe,
     HeaderComponent,
     SearchInputComponent,
-    ConnectWalletPopupComponent,
     CopyToClipboardDirective,
     EmptyStateComponent,
     SettingsBoxComponent

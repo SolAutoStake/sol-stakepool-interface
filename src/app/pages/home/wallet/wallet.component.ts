@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { faCheck, faTimes, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { PopoverController } from '@ionic/angular';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -15,14 +15,14 @@ import { SendTokenPopupComponent } from './send-token-popup/send-token-popup.com
   styleUrls: ['./wallet.component.scss'],
   providers: [LoaderService]
 })
-export class WalletComponent implements OnInit {
-  wallet = faWallet;
+export class WalletComponent implements OnChanges {
+  @Input('currentWallet') wallet;
+  walletIcon = faWallet;
   vMark = faCheck;
   xMark = faTimes;
   public solBalance = null
   public usdBalance = null;
   public address= null;
-  public currentWallet
   constructor(
     public popoverController: PopoverController,
     public walletService: WalletService,
@@ -30,13 +30,20 @@ export class WalletComponent implements OnInit {
     public loaderService :LoaderService
     ) { }
 
-  async ngOnInit(): Promise<void> {
-    this.walletService.currentWallet$.subscribe(async (wallet) => {
-      console.log(wallet)
-      // this.address = wallet.address;
-      // this.solBalance = (wallet.balance / LAMPORTS_PER_SOL).toFixed(2);
-      this.usdBalance = await this.utilService.solanaUsdPrice(this.solBalance)
-    })
+    ngOnChanges(): void {
+      //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
+      //Add '${implements OnChanges}' to the class.
+      if(this.wallet){
+        console.log(this.wallet);
+         this.getWalletData(this.wallet)
+        }
+    }
+
+  async getWalletData(wallet){
+    console.log(wallet)
+    const balance = await this.walletService.con.getBalance(wallet)
+    this.solBalance = (balance / LAMPORTS_PER_SOL).toFixed(2);
+    this.usdBalance = await this.utilService.solanaUsdPrice(this.solBalance)
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

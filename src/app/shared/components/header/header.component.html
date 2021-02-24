@@ -18,7 +18,7 @@
             <ng-template #logedWallet>
                 <ion-button class="connect-wallet-button" (click)="myWallet()">
                     {{ balance }} SOL 
-                    <span id="address">{{utilsService.shortenAddress(wallet.publicKey.toBase58())}}</span>
+                    <span id="address">{{utilsService.shortenAddress(wallet.toBase58())}}</span>
                 </ion-button>
             </ng-template>
 

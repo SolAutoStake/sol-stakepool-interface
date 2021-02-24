@@ -14,8 +14,9 @@
         </div>
         <div class="form-group" id="address-group">
             <ion-label>sending to</ion-label>
-            <ion-input  #addressInput placeholder="address"></ion-input>
+            <ion-input  #addressInput type="text" placeholder="address"></ion-input>
         </div>
-        <ion-button (click)="transferSol()">send</ion-button>
+        <ion-button [disabled]="amountInput.value == 0 || addressInput.value == '' " (click)="transferSol()">send</ion-button>
+        <small *ngIf="sendBtnClicked">please approve transaction on wallet provider popup</small>
     </ion-card-content>
 </ion-card>
