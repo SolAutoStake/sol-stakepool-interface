@@ -1,12 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { faEllipsisH, faExternalLinkAlt, faRocket, faWifi } from '@fortawesome/free-solid-svg-icons';
+import {  faExternalLinkAlt, faRocket } from '@fortawesome/free-solid-svg-icons';
 import { IonSelect, PopoverController } from '@ionic/angular';
-import { AccountInfo, Cluster, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { Wallet } from 'src/app/models';
-import { LocalDataService } from 'src/app/services/local-data.service';
+import {  LAMPORTS_PER_SOL, Account } from '@solana/web3.js';
 import { UtilsService } from 'src/app/services/utils.service';
 import { WalletService } from 'src/app/services/wallet.service';
-import { ConnectWalletPopupComponent } from '../connect-wallet-popup/connect-wallet-popup.component';
+import { ConnectWalletPopupComponent } from './connect-wallet-popup/connect-wallet-popup.component';
+import { SettingsBoxComponent } from './settings-box/settings-box.component';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -15,26 +14,42 @@ import { ConnectWalletPopupComponent } from '../connect-wallet-popup/connect-wal
 export class HeaderComponent implements OnInit {
   @ViewChild(IonSelect) selectNetwork: IonSelect;
   public logo = faRocket;
-  public dots = faEllipsisH;
   public exLink = faExternalLinkAlt;
-  public networks = faWifi;
-  public cluster = this.localDataService.getProp('cluster') || this.walletService.getCurrentCluster();
-  public wallet: Wallet = null;
+  public wallet: Account = null;
+  public balance: any = 0;
+  LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
   constructor(
     private popoverController: PopoverController,
     public walletService: WalletService,
-    public utilsService: UtilsService,
-    private localDataService: LocalDataService
+    public utilsService: UtilsService
   ) { }
 
   ngOnInit(): void {
-    console.log(this.cluster)
-    this.walletService.currentWallet$.subscribe((wallet: Wallet) => {
 
+    this.walletService.currentWallet$.subscribe(async (wallet) => {
       this.wallet = wallet;
+      if(wallet){
+        console.log(this.wallet.publicKey, this.walletService.con);
+        this.balance = await this.walletService.con.getBalance(this.wallet.publicKey);
+        this.balance = (this.balance / LAMPORTS_PER_SOL).toFixed(2)
+      }
     })
   }
+  async openSettingBox(ev: any) {
+    const popover = await this.popoverController.create({
+      component: SettingsBoxComponent,
+      cssClass: 'setting-box',
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
+  }
+  // async openWalletConnector() {
+  //   await this.walletService.connectWithProvider()
+  // }
   async openWalletConnector() {
+    console.log('test')
+    // await this.walletService.connectWithProvider()
     const popover = await this.popoverController.create({
       component: ConnectWalletPopupComponent,
       cssClass: "connect-wallet-popover",
@@ -42,18 +57,9 @@ export class HeaderComponent implements OnInit {
     });
     return await popover.present();
   }
-  async onClusterChange($event) {
-    const cluster: Cluster = $event.detail.value;
-    this.walletService.switchNetworkSubject.next(cluster)
-    // if wallet already connected then change network
-    if (this.localDataService.getProp('Mnemonic')) {
-      const Mnemonic = this.localDataService.getProp('Mnemonic').toString();
-      await this.walletService.connectWallet(Mnemonic, cluster);
-    }
-  }
 
   public myWallet() {
-    window.open(`https://explorer.solana.com/address/${this.wallet.address}?cluster=${this.walletService.getCurrentCluster()}`);
+    window.open(`https://explorer.solana.com/address/${this.wallet.publicKey.toBase58()}?cluster=${this.walletService.switchNetworkSubject.value}`);
   }
 
 

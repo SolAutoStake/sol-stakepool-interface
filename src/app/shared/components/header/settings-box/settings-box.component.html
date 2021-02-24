@@ -1,0 +1,11 @@
+<ion-card>
+    <ion-card-content>
+        <ion-card-subtitle>choose a network</ion-card-subtitle>
+        <ion-segment [value]="cluster" (ionChange)="onClusterChange($event)">
+
+            <ion-segment-button *ngFor="let endpoint of walletService.ENDPOINTS" [value]="endpoint.name">
+                <ion-label>{{endpoint.name}}</ion-label>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-card-content>
+</ion-card>

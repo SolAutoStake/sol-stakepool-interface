@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { WalletService } from 'src/app/services/wallet.service';
 import { PopoverController } from '@ionic/angular';
-import { Cluster } from '@solana/web3.js';
+import { Account, Cluster } from '@solana/web3.js';
+import { LocalDataService } from 'src/app/services/local-data.service';
 
 @Component({
   selector: 'app-connect-wallet-popup',
@@ -14,6 +15,9 @@ export class ConnectWalletPopupComponent implements OnInit {
   closeIcon = faTimes;
   isSubmitted: boolean = false;
   mnemonicForm: FormGroup;
+  Mnemonic: string;
+  accounts: any = null;
+  derivationPath = 'bip44Change';
   constructor(
     private walletService: WalletService,
     private fb: FormBuilder,
@@ -27,17 +31,25 @@ export class ConnectWalletPopupComponent implements OnInit {
   }
   async connectWallet() {
     this.isSubmitted = true;
-    const Mnemonic: string = this.mnemonicForm.controls.mnemonic.value;
-    const cluster: Cluster = this.walletService.getCurrentCluster();
+    const Mnemonic = this.mnemonicForm.controls.mnemonic.value;
     try {
-      await this.walletService.connectWallet(Mnemonic, cluster)
+      this.walletService.connectWallet(Mnemonic);
       this.closePopup();
     } catch (error) {
       console.error(error);
     }
     this.isSubmitted = false;
   }
+
+  restore(){
+    // this.closePopup();
+  }
   async closePopup() {
     this.popoverController.dismiss()
+  }
+  onDerivableChange(ev){
+    this.derivationPath = ev.detail.value
+    console.log(this.derivationPath);
+    this.connectWallet()
   }
 }

@@ -10,7 +10,7 @@
     flex-direction: column;
     padding: 20px 12px;
 }
-#popup-header{
+#popup-header, #derivable-head{
     color: var(--sol-stake-second);
     display: flex;
     align-items: center;
@@ -22,7 +22,7 @@
         cursor: pointer;
     }
 }
-#popup-body{
+#popup-body, #derivable-body{
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -35,4 +35,10 @@
     button{
         text-transform: capitalize;
     }
+}
+
+
+#derivable-head {
+    display: flex;
+    justify-content: space-between;
 }

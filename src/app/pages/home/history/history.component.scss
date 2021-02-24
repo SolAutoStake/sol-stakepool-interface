@@ -1,57 +1,17 @@
 :host{
-    margin-top: 50px;
     display: block;
 }
-ion-card{
-    padding: 20px;
-}
-fa-icon{
-    margin: 0 5px;
-}
-#history-card-title{
-    font-size: 24px;
-    text-transform: capitalize;
-}
-#history-list-head,.record {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: center;
-    line-height: 40px;
-}
-#history-list-head{
-    padding: 10px 0;
-    font-size: 16px;
-}
-#history-list-head {
-    border-bottom: 1px dashed var(--sol-stake-active);
-    margin-top: 30px;
-    margin-bottom: 10px;
-}
-#history-list-head div, .record > div, .record a {
-    width: 100%;
-    margin: 0 auto;
-    display: block;
-}
-#history-list-body, #record-list{
-    min-height: 222px;
-}
-.history-actions {
-    display: flex;
-    ion-button{
-        text-transform: capitalize;
-        width: 75px;
-        --border-radius: var(--sol-stake-button-border-radius);
-        --border-color: var(--sol-stake-active);
-        --color: var(--ion-stake-second);
-        --color-hover: var(--sol-stake-active);
-    }
-}
-a {
-    cursor: pointer;
-}
+
 :host ::ng-deep{
     .ngx-pagination .current{
-        background: #9148c7;
+        background: var(--sol-stake-active);
+    }
+}
+
+fa-icon{
+    cursor: pointer;
+    transition: 0.3s ease;
+    &:hover{
+        color: var(--sol-stake-active);
     }
 }

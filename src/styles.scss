@@ -9,6 +9,9 @@
     text-decoration: none;
     font-family: 'Arimo', sans-serif;
 }
+a {
+  cursor: pointer;
+}
 
 body{
   background-image: linear-gradient(to top, #c23fda, #7b4cbe, #434895, #263a63, #222831) !important;
@@ -17,12 +20,71 @@ body{
 img{
     max-width: 100%;
 }
+
 .container{
   padding: 10px 24px;
   max-width: 1140px;
   margin: 0 auto;
   --background: transparent;
 }
+
+// area block generic style
+ion-spinner {
+  display: block;
+  margin: 0 auto;
+  --color: var(--sol-stake-active);
+}
+ion-card{
+  padding: 20px;
+}
+fa-icon{
+  margin: 0 5px;
+}
+
+#area-card-title{
+  font-size: 24px;
+  text-transform: capitalize;
+}
+#area-list-head,.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  line-height: 40px;
+  text-transform: capitalize;
+}
+
+#area-list-head{
+  padding: 10px 0;
+  font-size: 16px;
+  border-bottom: 1px dashed var(--sol-stake-active);
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+
+#area-list-head div, .item > div, .item a {
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+#area-list-body {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+.area-actions {
+  display: flex;
+  ion-button{
+      text-transform: capitalize;
+      --border-radius: var(--sol-stake-button-border-radius);
+      --border-color: var(--sol-stake-active);
+      --color: var(--ion-stake-second);
+      --color-hover: var(--sol-stake-active);
+  }
+}
+
+
+
 .connect-wallet-button{
     --background: white;
     --color: var(--sol-stake-prime);
@@ -43,12 +105,14 @@ img{
     }
 }
 
-ion-popover.connect-wallet-popover, ion-popover.send-token-popup {
+ion-popover.connect-wallet-popover, ion-popover.transfer-token-popup {
     --max-width: 90%;
     --width: auto;
     --max-height: 100%;
   }
-
+  ion-popover.setting-box{
+    --width: 320px;
+  }
   .toastStyle {
     --color: white;
     text-transform: capitalize;
@@ -63,7 +127,7 @@ ion-popover.connect-wallet-popover, ion-popover.send-token-popup {
     --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
   }
   .toastSuccess {
-    --background: var(--sol-stake-suc);
-    --box-shadow: 0 8px 16px 0 rgba(30, 255, 75, 0.24);
+    --background: var(--sol-stake-active);
+    --box-shadow: 0 8px 16px 0 rgba(199, 30, 255, 0.24);
   }
   

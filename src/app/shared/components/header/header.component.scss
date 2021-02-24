@@ -65,7 +65,7 @@ header {
     }
     #my-spl {
         color: white;
-        padding: 8.5px;
+        padding: 7.5px;
         letter-spacing: 0.6px;
         cursor: pointer;
         border-radius: 12px;
@@ -79,7 +79,10 @@ header {
         opacity: 1;
      }
     }
- 
+    ion-icon {
+        font-size: 35px;
+        color: white;
+    }
 }
 
 @media only screen and (max-width: 600px) {

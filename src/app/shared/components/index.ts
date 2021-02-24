@@ -1,2 +1,5 @@
 export * from './header/header.component';
-export * from './connect-wallet-popup/connect-wallet-popup.component';
+export * from './search-input/search-input.component'
+export * from './empty-state/empty-state.component';
+export * from './header/settings-box/settings-box.component';
+export * from './header/connect-wallet-popup/connect-wallet-popup.component';

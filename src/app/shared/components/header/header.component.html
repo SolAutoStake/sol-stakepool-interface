@@ -17,18 +17,14 @@
             </ng-container>
             <ng-template #logedWallet>
                 <ion-button class="connect-wallet-button" (click)="myWallet()">
-                    {{wallet.balance}} SOL <span id="address">{{utilsService.shortenAddress(wallet.address)}}</span>
+                    {{ balance }} SOL 
+                    <span id="address">{{utilsService.shortenAddress(wallet.publicKey.toBase58())}}</span>
                 </ion-button>
             </ng-template>
 
 
+            <ion-icon (click)="openSettingBox($event)" name="cog-outline"></ion-icon>
 
-            <fa-icon (click)="selectNetwork.open($event)" [icon]="networks"></fa-icon>
-            <ion-select mode="ios" hidden [value]="cluster" (ionChange)="onClusterChange($event)" [interfaceOptions]="{subHeader: 'Select Network'}" interface="popover">
-                <ion-select-option value="mainnet-beta">mainnet beta</ion-select-option>
-                <ion-select-option value="devnet">devnet</ion-select-option>
-                <ion-select-option value="testnet">testnet</ion-select-option>
-            </ion-select>
         </div>
     </div>
 </header>

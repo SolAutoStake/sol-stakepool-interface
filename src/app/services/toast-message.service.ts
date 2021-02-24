@@ -18,7 +18,7 @@ export class ToastMessageService {
     const toast = await this.toastController.create({
       cssClass: `toastStyle ${segmentClass}`,
       message: text,
-      duration: 20000,
+      duration: 2000,
       animated: true
     });
     toast.present();

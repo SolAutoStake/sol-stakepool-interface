@@ -1,0 +1,48 @@
+ion-card{
+    width: 400px;
+    padding: 10px;
+}
+.form-group {
+    margin: 30px 0;
+}
+#select-stake-acc-wrapper{
+    margin: 15px 0;
+    ion-select{
+        border: 1px dashed var(--sol-stake-prime);
+        padding: 10px;
+    }
+}
+#amount-group{
+    ion-input{
+        width: 150px;
+        color: var(--sol-stake-prime);
+        margin: 0 auto;
+        text-align: center;
+        --padding-start: 0;
+        font-size: 22px;
+        font-weight: bold;
+        --padding-bottom: 0;
+    }
+    ion-range{
+        --knob-background: var(--sol-stake-active);
+        --bar-background: var(--sol-stake-prime);
+    }
+}
+#address-group{
+    ion-input{   
+        border: 1px dashed var(--sol-stake-active);
+        font-size: 12px;
+    }
+}
+ion-button {
+    width: 50%;
+    border: 0;
+    border-radius: 0;
+    --border-radius: 0;
+}
+#cancel-btn{
+    color: var(--sol-stake-err);
+}
+#delegate-btn{
+    --background: var(--sol-stake-prime);
+}

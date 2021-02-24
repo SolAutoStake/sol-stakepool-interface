@@ -5,11 +5,8 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './stake.component.html',
   styleUrls: ['./stake.component.scss']
 })
-export class StakeComponent implements OnInit {
+export class StakeComponent  {
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
 
 }
+

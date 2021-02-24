@@ -1,0 +1,28 @@
+<ion-card>
+    <ion-card-header>
+        <ion-card-subtitle style="font-size: 22px;">Delegate Your SOL</ion-card-subtitle>
+        <small>to validator: {{selectedValidator.name}}</small>
+    </ion-card-header>
+
+    <ion-card-content>
+
+        <div id="select-stake-acc-wrapper">
+            <h2>select a stake account</h2>
+            <ion-select placeholder="select account" (ionChange)="setActiveAccount($event)">
+                <ion-select-option *ngFor="let account of stakeAccounts" [value]="account">
+                    <span>
+                        {{account.pubkey}}
+                    </span>
+                </ion-select-option>
+            </ion-select>
+            <div id="balance" *ngIf="selectedStakeAcc">
+                stake account balance: {{selectedStakeAcc.account.lamports / LAMPORTS_PER_SOL}}
+            </div>
+        </div>
+
+        <div id="delegate-footer">
+            <ion-button (click)="closePopup()" id="cancel-btn" fill="clear">cancel</ion-button>
+            <ion-button id="delegate-btn" [disabled]="!selectedStakeAcc" (click)="startDelegate()">delagte</ion-button>
+        </div>
+    </ion-card-content>
+</ion-card>

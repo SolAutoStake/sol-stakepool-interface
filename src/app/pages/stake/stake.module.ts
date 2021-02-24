@@ -2,8 +2,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StakeComponent } from './stake.component';
 import { RouterModule, Routes } from '@angular/router';
-import { StakePoolCardComponent } from './stake-pool-card/stake-pool-card.component';
-import { GuideCardComponent } from './guide-card/guide-card.component';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { ValidatorListComponent } from './validator-list/validator-list.component';
+import { StakeAccountsComponent } from './stake-accounts/stake-accounts.component';
+import { DelegatePopupComponent } from './validator-list/delegate-popup/delegate-popup.component';
 
 
 
@@ -20,9 +22,10 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [StakeComponent, GuideCardComponent, StakePoolCardComponent],
+  declarations: [StakeComponent, ValidatorListComponent, StakeAccountsComponent, DelegatePopupComponent],
   imports: [
     CommonModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ]
 })
