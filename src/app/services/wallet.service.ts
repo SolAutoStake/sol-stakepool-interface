@@ -83,11 +83,11 @@ export class WalletService {
     await this.walletController.connect();
   }
   async getTokensOwner() {
-    const tokenAccountsByOwner = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
+    const tokenAccounts = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
       programId: this.TOKEN_PROGRAM_ID
     });
 
-    const filteredData = tokenAccountsByOwner.value.map(wallet => {
+    const tokenAccountsFiltered = tokenAccounts.value.map(wallet => {
       const account = wallet.account
       return {
         name: this.getHardCodedTokenName(account.data.parsed.info.mint),
@@ -97,7 +97,7 @@ export class WalletService {
       }
     });
 
-    return { tokenAccountsByOwner, filteredData }
+    return { tokenAccounts, tokenAccountsFiltered }
   }
   private getHardCodedTokenName(name) {
     switch (name) {
