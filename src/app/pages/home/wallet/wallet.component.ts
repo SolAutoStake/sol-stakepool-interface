@@ -22,28 +22,28 @@ export class WalletComponent implements OnChanges {
   xMark = faTimes;
   public solBalance = null
   public usdBalance = null;
-  public address= null;
+  public address = null;
+  tokensByOwner: any[] = null;
   constructor(
     public popoverController: PopoverController,
     public walletService: WalletService,
-    private utilService: UtilsService,
-    public loaderService :LoaderService
-    ) { }
+    public utilsService: UtilsService,
+    public loaderService: LoaderService
+  ) { }
 
-    ngOnChanges(): void {
-      //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-      //Add '${implements OnChanges}' to the class.
-      if(this.wallet){
-        console.log(this.wallet);
-         this.getWalletData(this.wallet)
-        }
+  ngOnChanges(): void {
+    if (this.wallet) {
+      this.getWalletData(this.wallet)
     }
-
-  async getWalletData(wallet){
-    console.log(wallet)
+  }
+  
+  async getWalletData(wallet) {
     const balance = await this.walletService.con.getBalance(wallet)
     this.solBalance = (balance / LAMPORTS_PER_SOL).toFixed(2);
-    this.usdBalance = await this.utilService.solanaUsdPrice(this.solBalance)
+    this.usdBalance = this.utilsService.solanaUsdPrice(this.solBalance)
+    
+    // SPL tokens
+    this.tokensByOwner = (await this.walletService.getTokensOwner()).parsedTokenData
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({
@@ -54,4 +54,7 @@ export class WalletComponent implements OnChanges {
     return await popover.present();
   }
 
+  async sell(){
+
+  }
 }

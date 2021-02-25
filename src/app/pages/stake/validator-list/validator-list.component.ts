@@ -1,11 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+
 import { ValidatorsInfoService } from 'src/app/services/validators-info.service';
 import { WalletService } from 'src/app/services/wallet.service';
-import { faCheck, faList, faWallet } from '@fortawesome/free-solid-svg-icons';
-import { ApiService } from 'src/app/services/api.service';
-import { Account, Authorized, Connection, CreateStakeAccountParams, DelegateStakeParams, LAMPORTS_PER_SOL, Lockup, PublicKey, sendAndConfirmTransaction, StakeProgram } from '@solana/web3.js';
-import { TransactionService } from 'src/app/services/transaction.service';
+import { faList } from '@fortawesome/free-solid-svg-icons';
+
 import { LoaderService } from 'src/app/services/loader.service';
 import { PopoverController } from '@ionic/angular';
 import { DelegatePopupComponent } from './delegate-popup/delegate-popup.component';
@@ -16,33 +14,32 @@ import { DelegatePopupComponent } from './delegate-popup/delegate-popup.componen
   styleUrls: ['./validator-list.component.scss'],
   providers: [LoaderService]
 })
-export class ValidatorListComponent implements OnInit {
+export class ValidatorListComponent implements OnChanges {
+  @Input('currentWallet') wallet;
+
   listIcon = faList;
   public validatorsData = null
+  public promotedValidator = null
   public searchTerm = '';
   constructor(
     public popoverController: PopoverController,
     public loaderService: LoaderService,
     private walleService: WalletService,
-    private validatorsInfoService: ValidatorsInfoService,
-    private transactionService: TransactionService
+    private validatorsInfoService: ValidatorsInfoService
   ) { }
 
 
-  public getPromotedValidator = null;
-  async ngOnInit() {
-    this.walleService.currentWallet$.subscribe(async (wallet) => {
-      if (wallet) {
-        console.log(wallet);
-        this.pullValidatorsInfo()
-      }
-    })
+  ngOnChanges() {
+    if (this.wallet) {
+      this.pullValidatorsInfo()
+    }
+
   }
 
   async pullValidatorsInfo() {
     this.loaderService.show()
-    this.validatorsData = await this.validatorsInfoService.getValidatorsInfo().toPromise()
-    console.log(this.validatorsData)
+    this.validatorsData = await this.validatorsInfoService.getValidatorsInfo().toPromise();
+    this.promotedValidator = await this.validatorsInfoService.getKeybasePubkey(this.validatorsData[0].name).toPromise();
     this.loaderService.hide()
   }
   async openDelagatePopup(selectedValidator) {
@@ -54,9 +51,10 @@ export class ValidatorListComponent implements OnInit {
     });
     return await popover.present();
   }
+
   //TODO - add UI or amount to delegate
   async delegate(selected) {
-    this.transactionService.createStakeAccount(0.1);
+    // this.transactionService.createStakeAccount(0.1);
     // const authorized = this.walleService.acc
     // const con = this.walleService.con
 

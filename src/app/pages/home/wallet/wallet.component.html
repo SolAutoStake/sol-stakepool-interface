@@ -22,6 +22,16 @@
                         <ion-button fill="clear" [appCopyToClipboard] [textToCopy]="address">receive</ion-button>
                     </div>
                 </div>
+                <div *ngFor="let token of tokensByOwner" class="item">
+                    <div>{{utilsService.shortenAddress(token.name,5)}}</div>
+                    <div>{{token.amount}}</div>
+                    <div>
+                        <fa-icon [icon]="vMark"></fa-icon>
+                    </div>
+                    <div class="area-actions">
+                        <ion-button fill="clear" (click)="sell()">sell</ion-button>
+                    </div>
+                </div>
             </div>
         </div>
     </ng-container>

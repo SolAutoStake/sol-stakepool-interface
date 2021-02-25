@@ -6,12 +6,14 @@ import { WalletService } from 'src/app/services/wallet.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent  {
   public currentWallet = null;
   constructor(private walletService: WalletService) {
    }
 
-   ngOnInit(){
+   ionViewWillEnter(){
+    this.currentWallet = this.walletService.walletController ? this.walletService.walletController.publicKey : null;
+    console.log(this.currentWallet);
     this.walletService.currentWallet$.subscribe(async (wallet) => {
       console.log(wallet)
       this.currentWallet = wallet

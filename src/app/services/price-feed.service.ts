@@ -13,7 +13,6 @@ export class PriceFeedService {
   }
   async getPriceList(tokens?: string[]): Promise<any> {
     const rate = await this.apiService.get(`${this.endpoint}?ids=solana&vs_currencies=usd`).toPromise();
-    console.log(rate);
     this._solUSDvalue = rate.solana.usd;
     return rate;
   }

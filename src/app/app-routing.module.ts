@@ -13,6 +13,11 @@ const routes: Routes = [
     loadChildren: () =>
       import("./pages/stake/stake.module").then((m) => m.StakeModule),
   },
+  {
+    path: "pools",
+    loadChildren: () =>
+      import("./pages/pools/pools.module").then((m) => m.PoolsModule),
+  },
   { path: "**", redirectTo: "" },
 ];
 

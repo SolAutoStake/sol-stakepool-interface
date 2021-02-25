@@ -56,7 +56,7 @@ export class TransactionService {
     const isValid = await this.verifyBalance(lamports, wallet.publicKey);
     if (isValid) {
       // get owned keys (used for security checks)
-      const txParam: TransactionInstruction = SystemProgram.transfer({
+      const txParam: any = SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
         toPubkey,
         lamports,
@@ -76,7 +76,7 @@ export class TransactionService {
       );
 
       const newStakeAccount = new Account();
-      let tx = StakeProgram.createAccount({
+      let tx:Transaction = StakeProgram.createAccount({
         fromPubkey: wallet.publicKey,
         stakePubkey: newStakeAccount.publicKey,
         authorized: new Authorized(wallet.publicKey, wallet.publicKey),
@@ -84,7 +84,7 @@ export class TransactionService {
         lamports: minimumAmount + sol * LAMPORTS_PER_SOL,
       });
 
-      this.sendTx(tx.instructions[0])
+      this.sendTx(tx)
 
     }
     catch (err) {
@@ -92,6 +92,32 @@ export class TransactionService {
     }
 
   }
+
+
+  private async sendTx(txParam:  TransactionInstruction | Transaction) {
+    const connection: Connection = this.walletService.con;
+    const wallet = this.walletService.walletController;
+    console.log(wallet)
+    try {
+
+      const { blockhash } = await connection.getRecentBlockhash('max');
+      let transaction: Transaction = new Transaction({ recentBlockhash: blockhash }).add(txParam);
+      // transaction.addSigner(wallet.publicKey)
+      transaction = await wallet.signTransaction(transaction);
+      console.log(transaction)
+      const rawTransaction = transaction.serialize();
+      this.popoverController.dismiss()
+      const txid = await connection.sendRawTransaction(rawTransaction);
+      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
+      const confirmTx = await connection.confirmTransaction(txid);
+      this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
+    } catch (error) {
+      console.error(error)
+      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
+    }
+  }
+
+
   async delegate(stakeAccParam, delegateAccParam) {
     // const connection: Connection = this.walletService.con;
     // const wallet: Account = this.walletService.acc;
@@ -143,25 +169,4 @@ export class TransactionService {
 
     // this.sendTx(tx, wallet)
   }
-
-  private async sendTx(txParam) {
-    const connection: Connection = this.walletService.con;
-    const wallet = this.walletService.walletController;
-    try {
-
-      const { blockhash } = await connection.getRecentBlockhash('max');
-      const transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
-      const signed = await wallet.signTransaction(transaction);
-      this.popoverController.dismiss()
-      const txid = await connection.sendRawTransaction(signed.serialize());
-      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-      const confirmTx = await connection.confirmTransaction(txid, 'max');
-      this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
-    } catch (error) {
-      console.error(error)
-      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
-    }
-  }
-
-
 }

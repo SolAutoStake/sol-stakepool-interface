@@ -6,17 +6,15 @@ import { LocalDataService } from './local-data.service';
 import { ToastMessageService } from './toast-message.service';
 
 import {
-  Account,
   Connection,
-  Cluster,
   clusterApiUrl,
   PublicKey,
   ConfirmedSignatureInfo,
   ConfirmedTransaction,
   LAMPORTS_PER_SOL,
+  AccountInfo
 } from '@solana/web3.js';
 import Wallet from "@project-serum/sol-wallet-adapter";
-import { PopoverController } from '@ionic/angular';
 
 export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
 
@@ -25,6 +23,9 @@ export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
 })
 export class WalletService {
 
+  protected TOKEN_PROGRAM_ID: PublicKey = new PublicKey(
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+  );
   public ENDPOINTS = [
     {
       name: "mainnet-beta" as ENV,
@@ -50,14 +51,12 @@ export class WalletService {
   public networkSubject = new BehaviorSubject<any>(this.ENDPOINTS[0] as any);
   public providerSubject = new BehaviorSubject<any>(this.WALLET_PROVIDERS[0] as any);
 
-  
+
   constructor(
     private apiService: ApiService,
-    private toastMessageService: ToastMessageService,
-    private localDataService: LocalDataService
+    private toastMessageService: ToastMessageService
   ) {
     this.networkSubject.subscribe(async val => {
-      console.log(val);
       this.con = await new Connection(this.networkSubject.value.endpoint);
       if (this.walletController) {
         await this.disconnectFromWallet()
@@ -83,6 +82,43 @@ export class WalletService {
     });
     await this.walletController.connect();
   }
+  async getTokensOwner() {
+    const tokenAccountsByOwner = await this.con.getTokenAccountsByOwner(this.walletController.publicKey, {
+      programId: this.TOKEN_PROGRAM_ID
+    });
+
+    const parsedTokenData = await Promise.all(
+      tokenAccountsByOwner.value.map(async (account) => {
+        try {
+          const parsedData: any = await this.con.getParsedAccountInfo(account.pubkey);
+          return {
+            name: this.getHardCodedTokenName(parsedData.value.data.parsed.info.mint),
+            amount: parsedData.value.lamports / LAMPORTS_PER_SOL,
+            tokenAmount: parsedData.value.data.parsed.info.tokenAmount || null,
+            isNative: parsedData.value.data.parsed.info.isNative
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      })
+    );
+
+    return { tokenAccountsByOwner, parsedTokenData }
+  }
+  private getHardCodedTokenName(name) {
+    switch (name) {
+      case 'address1':
+        return 'stSOL'
+        break;
+      case 'address2':
+        return 'METALP'
+        break;
+
+      default:
+        return name;
+        break;
+    }
+  }
   private async disconnectFromWallet() {
     await this.walletController.disconnect()
     this.currentWalletSubject.next(null);
@@ -96,7 +132,6 @@ export class WalletService {
       signatures.forEach(async signature => {
         rd.push(this.con.getConfirmedTransaction(signature.signature));
       });
-      // const history: ConfirmedTransaction = await Promise.all([this.walletService.con.getConfirmedTransaction(signatures)]);
       const records: ConfirmedTransaction[] = await Promise.all(rd);
       records.forEach((record, i) => {
         const from = record?.transaction?.instructions[0]?.keys[0]?.pubkey.toBase58() || null;
@@ -106,6 +141,7 @@ export class WalletService {
       });
       return walletHistory;
     } catch (error) {
+      console.error(error)
       this.toastMessageService.msg.next({ message: 'failed to retrieve transaction history', segmentClass: 'toastError' })
     }
   }

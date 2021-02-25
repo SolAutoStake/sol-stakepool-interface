@@ -17,7 +17,8 @@ export class ValidatorsInfoService {
     return throwError(error);
   }
   getValidatorsInfo(){
-    return this.apiService.get(`${this.solValidatorsApi}?network=${this.walleService.networkSubject.value.name}&order=score&limit=100`).pipe(
+    const network = this.walleService.networkSubject.value.name ==  'mainnet-beta'  ? 'mainnet' : this.walleService.networkSubject.value.name
+    return this.apiService.get(`${this.solValidatorsApi}?network=${network}&order=score&limit=100`).pipe(
       map((validatorMetrics) => {
         // Update the currentUser observable
         return validatorMetrics;
@@ -29,7 +30,7 @@ export class ValidatorsInfoService {
   getKeybasePubkey(validatorUserName){
     return this.apiService.get(`https://keybase.io/_/api/1.0/user/lookup.json?username=${validatorUserName}`).pipe(
       map((validatorMetrics) => {
-        return validatorMetrics;
+        return validatorMetrics.them;
       }),
       catchError((error) => this.formatErrors(error))
     );

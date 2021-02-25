@@ -3,11 +3,11 @@
         <ion-card-title id="area-card-title">
             <ion-icon name="people"></ion-icon>stake accounts
         </ion-card-title>
-        <div *ngIf="stakeAccounts">
+        <div *ngIf="wallet">
             <ion-icon id="create-stake-account" name="person-add" (click)="openNewStakeAccountPopup()"></ion-icon>
         </div>
     </div>
-    <ng-container *ngIf="stakeAccounts; else emptyState">
+    <ng-container *ngIf="wallet; else emptyState">
     <div id="area-list">
         <div id="area-list-head">
             <div>address</div>
