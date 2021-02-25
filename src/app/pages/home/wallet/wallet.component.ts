@@ -43,7 +43,7 @@ export class WalletComponent implements OnChanges {
     this.usdBalance = this.utilsService.solanaUsdPrice(this.solBalance)
     
     // SPL tokens
-    this.tokensByOwner = (await this.walletService.getTokensOwner()).parsedTokenData
+    this.tokensByOwner = (await this.walletService.getTokensOwner()).filteredData
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

@@ -83,27 +83,21 @@ export class WalletService {
     await this.walletController.connect();
   }
   async getTokensOwner() {
-    const tokenAccountsByOwner = await this.con.getTokenAccountsByOwner(this.walletController.publicKey, {
+    const tokenAccountsByOwner = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
       programId: this.TOKEN_PROGRAM_ID
     });
 
-    const parsedTokenData = await Promise.all(
-      tokenAccountsByOwner.value.map(async (account) => {
-        try {
-          const parsedData: any = await this.con.getParsedAccountInfo(account.pubkey);
-          return {
-            name: this.getHardCodedTokenName(parsedData.value.data.parsed.info.mint),
-            amount: parsedData.value.lamports / LAMPORTS_PER_SOL,
-            tokenAmount: parsedData.value.data.parsed.info.tokenAmount || null,
-            isNative: parsedData.value.data.parsed.info.isNative
-          }
-        } catch (error) {
-          console.error(error)
-        }
-      })
-    );
+    const filteredData = tokenAccountsByOwner.value.map(wallet => {
+      const account = wallet.account
+      return {
+        name: this.getHardCodedTokenName(account.data.parsed.info.mint),
+        amount: account.lamports / LAMPORTS_PER_SOL,
+        tokenAmount: account.data.parsed.info.tokenAmount || null,
+        isNative: account.data.parsed.info.isNative
+      }
+    });
 
-    return { tokenAccountsByOwner, parsedTokenData }
+    return { tokenAccountsByOwner, filteredData }
   }
   private getHardCodedTokenName(name) {
     switch (name) {
