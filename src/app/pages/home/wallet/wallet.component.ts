@@ -9,6 +9,7 @@ import { WalletService } from 'src/app/services/wallet.service';
 import { SendTokenPopupComponent } from './send-token-popup/send-token-popup.component';
 
 import { Token } from '../../../models/token';
+import { SellStSOLPopupComponent } from './sell-st-sol-popup/sell-st-sol-popup.component';
 @Component({
   selector: 'app-wallet',
   templateUrl: './wallet.component.html',
@@ -62,6 +63,11 @@ export class WalletComponent implements OnChanges {
   }
 
   async sell(){
-
+    const popover = await this.popoverController.create({
+      component: SellStSOLPopupComponent,
+      cssClass: "transfer-token-popup",
+      animated: true,
+    });
+    return await popover.present();
   }
 }

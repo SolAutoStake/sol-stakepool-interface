@@ -12,21 +12,17 @@
             </div>
             <div id="area-list-body">
                 <div *ngFor="let token of tokensByOwner" class="item">
-					<div>{{token.name}}<fa-icon [appCopyToClipboard]
-							[textToCopy]="token.address" [icon]="copyAddress"></fa-icon>
-					</div>
+                    <div>{{token.name}}<fa-icon [appCopyToClipboard] [textToCopy]="token.address" [icon]="copyAddress">
+                        </fa-icon>
+                    </div>
                     <div>{{token.amount}}</div>
                     <div>
                         <fa-icon [icon]="token.isNative ? vMark : xMark"></fa-icon>
                     </div>
                     <div class="area-actions">
-                        <ng-container *ngIf="token.isNative; else otherActions">
-                            <ion-button fill="clear" (click)="openSendTokenPopup()">send</ion-button>
-                            <ion-button fill="clear" [appCopyToClipboard] [textToCopy]="address">receive</ion-button>
-                        </ng-container>
-                        <ng-template #otherActions>
-                            <ion-button fill="clear" *ngIf="token.name == 'stSOL' || token.name == 'OLD stSOL'" (click)="sell()">sell</ion-button>                 
-                        </ng-template>
+                        <ion-button fill="clear" *ngIf="token.isNative" (click)="openSendTokenPopup()">send</ion-button>
+                        <ion-button fill="clear" *ngIf="token.name == 'stSOL' || token.name == 'OLD stSOL'" (click)="sell()">sell</ion-button>
+
                     </div>
                 </div>
             </div>

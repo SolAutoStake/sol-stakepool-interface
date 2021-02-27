@@ -14,7 +14,7 @@ export class UtilsService {
       }
       return
     
-      // this method been iside widly in app, not only inside wallet component, so cant assume object path is constant =
+      // this method been widly used in app, not only inside wallet component, so cant assume object path is constant =
     // if (token) {
     //   if (token.name) {
     //     return token.name;

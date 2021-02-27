@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { WalletComponent } from './wallet/wallet.component';
 import { HistoryComponent } from './history/history.component';
 import { SendTokenPopupComponent } from './wallet/send-token-popup/send-token-popup.component';
+import { SellStSOLPopupComponent } from './wallet/sell-st-sol-popup/sell-st-sol-popup.component';
 
 
 const routes: Routes = [
@@ -21,7 +22,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [HomeComponent, WalletComponent, HistoryComponent, SendTokenPopupComponent],
+  declarations: [HomeComponent, WalletComponent, HistoryComponent, SendTokenPopupComponent, SellStSOLPopupComponent],
   imports: [
     CommonModule,
     SharedModule,

@@ -1,6 +1,4 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-
-import { ValidatorsInfoService } from 'src/app/services/validators-info.service';
 import { WalletService } from 'src/app/services/wallet.service';
 import { faList } from '@fortawesome/free-solid-svg-icons';
 
@@ -24,8 +22,7 @@ export class ValidatorListComponent implements OnChanges {
   constructor(
     public popoverController: PopoverController,
     public loaderService: LoaderService,
-    private walleService: WalletService,
-    private validatorsInfoService: ValidatorsInfoService
+    private walleService: WalletService
   ) { }
 
 
@@ -38,8 +35,8 @@ export class ValidatorListComponent implements OnChanges {
 
   async pullValidatorsInfo() {
     this.loaderService.show()
-    this.validatorsData = await this.validatorsInfoService.getValidatorsInfo().toPromise();
-    this.promotedValidator = await this.validatorsInfoService.getKeybasePubkey(this.validatorsData[0].name).toPromise();
+    // this.validatorsData = await this.validatorsInfoService.getValidatorsInfo().toPromise();
+    // this.promotedValidator = await this.validatorsInfoService.getKeybasePubkey(this.validatorsData[0].name).toPromise();
     this.loaderService.hide()
   }
   async openDelagatePopup(selectedValidator) {
