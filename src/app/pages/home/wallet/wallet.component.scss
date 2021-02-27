@@ -1,0 +1,9 @@
+
+
+fa-icon{
+    cursor: pointer;
+    transition: 0.3s ease;
+    &:hover{
+        color: var(--sol-stake-active);
+    }
+}

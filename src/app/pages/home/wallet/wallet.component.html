@@ -23,7 +23,9 @@
                     </div>
                 </div>
                 <div *ngFor="let token of tokensByOwner" class="item">
-                    <div>{{utilsService.shortenAddress(token.name,5)}}</div>
+					<div>{{utilsService.shortenAddress(token)}}<fa-icon [appCopyToClipboard]
+							[textToCopy]="token.address" [icon]="copyAddress"></fa-icon>
+					</div>
                     <div>{{token.amount}}</div>
                     <div>
                         <fa-icon [icon]="vMark"></fa-icon>

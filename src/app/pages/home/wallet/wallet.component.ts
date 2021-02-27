@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { faCheck, faTimes, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { PopoverController } from '@ionic/angular';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -17,6 +18,7 @@ import { SendTokenPopupComponent } from './send-token-popup/send-token-popup.com
 })
 export class WalletComponent implements OnChanges {
   @Input('currentWallet') wallet;
+  copyAddress = faCopy;
   walletIcon = faWallet;
   vMark = faCheck;
   xMark = faTimes;

@@ -7,11 +7,20 @@ import { PriceFeedService } from './price-feed.service';
 export class UtilsService {
 
   constructor(private priceFeedService:PriceFeedService) { }
-  public shortenAddress(address: string, chars = 4): string {
-    if (address) {
-      return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`
+  public shortenAddress(token, chars = 10): string {
+    if (token) {
+      if (token.name) {
+		  return token.name;
+	  }
+	  const addr = token.address;
+	  if (addr) {
+		if (addr.length <= chars) {
+			return addr;
+		}
+		return `${addr.substring(0, chars)}...`;
+	  }
     }
-    return
+    return "-";
   }
   public shortenSignature(signature: string, chars = 4): string {
     if (signature) {
