@@ -101,16 +101,19 @@ export class WalletService {
   }
   private getHardCodedTokenName(name) {
     switch (name) {
+	  // LEGACY
+	  case '21ofzqmgounc8bX4CK6j3Ff4zjvX6GmRykUnJAU96zKz':
+		return 'OLD stSOL';
+	  case '3XrStMayUhNpsFJzmKyynC99fs1Ppbenpj3kpC77EQEh':
+		return 'OLD METALP';
+	  // CURRENT
       case '9ipM64eAyTtV5mY27qrdAe5x143QfcjuDRWp72EZBeez':
         return 'stSOL'
-        break;
       case 'EYbFdPKbRa3MxGxQy9YgFSFs7448Gq17fWRYSeNhVNtq':
         return 'METALP'
-        break;
 
       default:
         return name;
-        break;
     }
   }
   private async disconnectFromWallet() {
