@@ -101,10 +101,10 @@ export class WalletService {
   }
   private getHardCodedTokenName(name) {
     switch (name) {
-      case 'address1':
+      case '9ipM64eAyTtV5mY27qrdAe5x143QfcjuDRWp72EZBeez':
         return 'stSOL'
         break;
-      case 'address2':
+      case 'EYbFdPKbRa3MxGxQy9YgFSFs7448Gq17fWRYSeNhVNtq':
         return 'METALP'
         break;
 
