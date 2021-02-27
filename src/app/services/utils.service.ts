@@ -6,21 +6,28 @@ import { PriceFeedService } from './price-feed.service';
 })
 export class UtilsService {
 
-  constructor(private priceFeedService:PriceFeedService) { }
-  public shortenAddress(token, chars = 10): string {
-    if (token) {
-      if (token.name) {
-		  return token.name;
-	  }
-	  const addr = token.address;
-	  if (addr) {
-		if (addr.length <= chars) {
-			return addr;
-		}
-		return `${addr.substring(0, chars)}...`;
-	  }
-    }
-    return "-";
+  constructor(private priceFeedService: PriceFeedService) { }
+  public shortenAddress(address, chars = 4): string {
+
+      if (address) {
+        return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`
+      }
+      return
+    
+      // this method been iside widly in app, not only inside wallet component, so cant assume object path is constant =
+    // if (token) {
+    //   if (token.name) {
+    //     return token.name;
+    //   }
+    //   const addr = token.address;
+    //   if (addr) {
+    //     if (addr.length <= chars) {
+    //       return addr;
+    //     }
+    //     return `${addr.substring(0, chars)}...`;
+    //   }
+    // }
+    // return "-";
   }
   public shortenSignature(signature: string, chars = 4): string {
     if (signature) {
@@ -28,8 +35,8 @@ export class UtilsService {
     }
     return
   }
-  public solanaUsdPrice(sol): string{
-    const priceFeed =  this.priceFeedService._solUSDvalue;
+  public solanaUsdPrice(sol): string {
+    const priceFeed = this.priceFeedService._solUSDvalue;
     return `${(priceFeed * sol).toFixed(2)}$`;
   }
 
@@ -40,7 +47,7 @@ export class UtilsService {
     const seed = await bip39.mnemonicToSeed(mnemonic);
     return Buffer.from(seed);
   }
-  
+
   public async generateMnemonicAndSeed() {
     const mnemonic = bip39.generateMnemonic(128);
     const seed = await bip39.mnemonicToSeed(mnemonic);

@@ -15,6 +15,7 @@ import {
   AccountInfo
 } from '@solana/web3.js';
 import Wallet from "@project-serum/sol-wallet-adapter";
+import { Token } from '../models/token';
 
 export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
 
@@ -22,10 +23,18 @@ export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
   providedIn: 'root'
 })
 export class WalletService {
-
   protected TOKEN_PROGRAM_ID: PublicKey = new PublicKey(
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
   );
+
+  protected WRAPPED_SOL_MINT = new PublicKey(
+    'So11111111111111111111111111111111111111112',
+  );
+
+  protected MEMO_PROGRAM_ID = new PublicKey(
+    'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo',
+  );
+
   public ENDPOINTS = [
     {
       name: "mainnet-beta" as ENV,
@@ -82,37 +91,41 @@ export class WalletService {
     });
     await this.walletController.connect();
   }
-  async getTokensOwner() {
+  async getTokensOwner(): Promise<any | Token[]>  {
     const tokenAccounts = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
       programId: this.TOKEN_PROGRAM_ID
     });
-
-    const tokenAccountsFiltered = tokenAccounts.value.map(wallet => {
+    console.log(tokenAccounts);
+    const tokenAccountsFiltered: Token[] = tokenAccounts.value.map(wallet => {
       const account = wallet.account
-      return {
-		address: account.data.parsed.info.mint,
+
+      const token: Token = {
+        address: account.data.parsed.info.mint,
         name: this.getHardCodedTokenName(account.data.parsed.info.mint),
         amount: account.lamports / LAMPORTS_PER_SOL,
         tokenAmount: account.data.parsed.info.tokenAmount || null,
         isNative: account.data.parsed.info.isNative
       }
+      return token;
     });
 
     return { tokenAccounts, tokenAccountsFiltered }
   }
   private getHardCodedTokenName(name) {
     switch (name) {
-	  // LEGACY
-	  case '21ofzqmgounc8bX4CK6j3Ff4zjvX6GmRykUnJAU96zKz':
-		return 'OLD stSOL';
-	  case '3XrStMayUhNpsFJzmKyynC99fs1Ppbenpj3kpC77EQEh':
-		return 'OLD METALP';
-	  // CURRENT
+      // LEGACY
+      case '21ofzqmgounc8bX4CK6j3Ff4zjvX6GmRykUnJAU96zKz':
+        return 'OLD stSOL';
+      case '3XrStMayUhNpsFJzmKyynC99fs1Ppbenpj3kpC77EQEh':
+        return 'OLD METALP';
+      // CURRENT
       case '9ipM64eAyTtV5mY27qrdAe5x143QfcjuDRWp72EZBeez':
         return 'stSOL'
       case 'EYbFdPKbRa3MxGxQy9YgFSFs7448Gq17fWRYSeNhVNtq':
         return 'METALP'
-
+      case this.WRAPPED_SOL_MINT.toBase58():
+        return 'Wrapped SOL'
+        break;
       default:
         return null;
     }

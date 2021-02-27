@@ -2,14 +2,13 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { faCheck, faTimes, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { PopoverController } from '@ionic/angular';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { LoaderService } from 'src/app/services/loader.service';
-import { PriceFeedService } from 'src/app/services/price-feed.service';
-import { ToastMessageService } from 'src/app/services/toast-message.service';
 import { UtilsService } from 'src/app/services/utils.service';
-
 import { WalletService } from 'src/app/services/wallet.service';
 import { SendTokenPopupComponent } from './send-token-popup/send-token-popup.component';
+
+import { Token } from '../../../models/token';
 @Component({
   selector: 'app-wallet',
   templateUrl: './wallet.component.html',
@@ -25,7 +24,7 @@ export class WalletComponent implements OnChanges {
   public solBalance = null
   public usdBalance = null;
   public address = null;
-  tokensByOwner: any[] = null;
+  tokensByOwner: any[] = [];;
   constructor(
     public popoverController: PopoverController,
     public walletService: WalletService,
@@ -36,16 +35,22 @@ export class WalletComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.wallet) {
       this.getWalletData(this.wallet)
+      console.log(this.wallet)
     }
   }
   
   async getWalletData(wallet) {
-    const balance = await this.walletService.con.getBalance(wallet)
-    this.solBalance = (balance / LAMPORTS_PER_SOL).toFixed(2);
-    this.usdBalance = this.utilsService.solanaUsdPrice(this.solBalance)
-    
+    this.tokensByOwner.push({
+      address: this.wallet.toBase58(),
+      name: 'SOL',
+      amount: await this.walletService.con.getBalance(wallet) / LAMPORTS_PER_SOL,
+      tokenAmount: null,
+      isNative: true
+    })
     // SPL tokens
-    this.tokensByOwner = (await this.walletService.getTokensOwner()).tokenAccountsFiltered
+    this.tokensByOwner = this.tokensByOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
+
+    console.log(this.tokensByOwner)
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

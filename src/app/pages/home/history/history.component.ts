@@ -20,8 +20,7 @@ export class HistoryComponent implements OnChanges {
   constructor(
     public loaderService: LoaderService,
     public utilsService: UtilsService,
-    private walletService: WalletService,
-    private transactionService: TransactionService) {
+    private walletService: WalletService) {
   }
 
   ngOnChanges() {
