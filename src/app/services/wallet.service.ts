@@ -90,6 +90,7 @@ export class WalletService {
     const tokenAccountsFiltered = tokenAccounts.value.map(wallet => {
       const account = wallet.account
       return {
+		address: account.data.parsed.info.mint,
         name: this.getHardCodedTokenName(account.data.parsed.info.mint),
         amount: account.lamports / LAMPORTS_PER_SOL,
         tokenAmount: account.data.parsed.info.tokenAmount || null,
@@ -113,7 +114,7 @@ export class WalletService {
         return 'METALP'
 
       default:
-        return name;
+        return null;
     }
   }
   private async disconnectFromWallet() {
@@ -124,12 +125,11 @@ export class WalletService {
   async getWalletHistory(walletPubKey: PublicKey) {
     try {
       const signatures: ConfirmedSignatureInfo[] = await this.con.getConfirmedSignaturesForAddress2(walletPubKey);
-      let rd: any[] = [];
+      let records: any[] = [];
       let walletHistory = []
-      signatures.forEach(async signature => {
-        rd.push(this.con.getConfirmedTransaction(signature.signature));
+      signatures.forEach(signature => {
+        records.push(this.con.getConfirmedTransaction(signature.signature));
       });
-      const records: ConfirmedTransaction[] = await Promise.all(rd);
       records.forEach((record, i) => {
         const from = record?.transaction?.instructions[0]?.keys[0]?.pubkey.toBase58() || null;
         const to = record.transaction?.instructions[0]?.keys[1]?.pubkey.toBase58() || null;;
