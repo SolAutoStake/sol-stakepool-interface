@@ -75,13 +75,18 @@ export class TransactionService {
         StakeProgram.space,
       );
 
-      const newStakeAccount = new Account();
+	  const fromPubkey = wallet.publicKey;
+	  const newAccountPubkey = new Account().publicKey;
+	  const authorizedPubkey = wallet.publicKey;
+	  const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
+	  const lockup = new Lockup(0, 0, fromPubkey);
+	  const lamports = minimumAmount + sol * LAMPORTS_PER_SOL;
       let tx:Transaction = StakeProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        stakePubkey: newStakeAccount.publicKey,
-        authorized: new Authorized(wallet.publicKey, wallet.publicKey),
-        lockup: new Lockup(0, 0, new PublicKey(0)),
-        lamports: minimumAmount + sol * LAMPORTS_PER_SOL,
+		fromPubkey,
+		stakePubkey: newAccountPubkey,
+		authorized,
+		lockup,
+		lamports,
       });
 
       this.sendTx(tx)
@@ -94,17 +99,20 @@ export class TransactionService {
   }
 
 
-  private async sendTx(txParam:  TransactionInstruction | Transaction) {
+  private async sendTx(txParam: Transaction) {
     const connection: Connection = this.walletService.con;
     const wallet = this.walletService.walletController;
-    console.log(wallet)
+    console.log(wallet);
     try {
 
       const { blockhash } = await connection.getRecentBlockhash('max');
-      let transaction: Transaction = new Transaction({ recentBlockhash: blockhash }).add(txParam);
-      // transaction.addSigner(wallet.publicKey)
+	  
+	  let transaction: Transaction = new Transaction({ recentBlockhash: blockhash, feePayer: wallet.publicKey }).add(txParam);
+      //transaction.addSigner(wallet.publicKey)
+	  // TODO: signing error. See https://discord.com/channels/428295358100013066/517163444747894795/803515366709002240
+	  console.log("Transaction",transaction);
       transaction = await wallet.signTransaction(transaction);
-      console.log(transaction)
+      console.log("signed",transaction);
       const rawTransaction = transaction.serialize();
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
@@ -112,7 +120,7 @@ export class TransactionService {
       const confirmTx = await connection.confirmTransaction(txid);
       this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
     } catch (error) {
-      console.error(error)
+      console.error(error);
       this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
     }
   }

@@ -42,7 +42,7 @@ export class WalletService {
 
   public con: Connection = null;
 
-  public walletController = null
+  public walletController: Wallet = null
   private currentWalletSubject = new Subject<PublicKey>();
   public currentWallet$: Observable<PublicKey> = this.currentWalletSubject
     .asObservable()
