@@ -101,13 +101,18 @@ export class TransactionService {
         StakeProgram.space,
       );
 
-      const newStakeAccount = new Account();
-      let tx: Transaction = StakeProgram.createAccount({
-        fromPubkey: wallet.publicKey,
-        stakePubkey: newStakeAccount.publicKey,
-        authorized: new Authorized(wallet.publicKey, wallet.publicKey),
-        lockup: new Lockup(0, 0, new PublicKey(0)),
-        lamports: minimumAmount + sol * LAMPORTS_PER_SOL,
+	  const fromPubkey = wallet.publicKey;
+	  const newAccountPubkey = new Account().publicKey;
+	  const authorizedPubkey = wallet.publicKey;
+	  const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
+	  const lockup = new Lockup(0, 0, fromPubkey);
+	  const lamports = minimumAmount + sol * LAMPORTS_PER_SOL;
+      let tx:Transaction = StakeProgram.createAccount({
+		fromPubkey,
+		stakePubkey: newAccountPubkey,
+		authorized,
+		lockup,
+		lamports,
       });
 
       this.sendTx(tx)
@@ -119,11 +124,11 @@ export class TransactionService {
 
   }
 
-  sell_stSOL = (
+  sell_stSOL (
     amount: number,
     userwSOLaddress: string,
     userstSOLaddress: string
-  ): any => {
+  ){
     console.log(amount,userwSOLaddress,userstSOLaddress);
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction"),
@@ -139,7 +144,6 @@ export class TransactionService {
       data
     );
 
-    console.log(this.walletService.walletController.publicKey);
     const keys = [
       // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
       { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: false },
@@ -163,14 +167,14 @@ export class TransactionService {
   private async sendTx(txParam: TransactionInstruction | Transaction) {
     const connection: Connection = this.walletService.con;
     const wallet = this.walletService.walletController;
-    console.log(wallet)
+    console.log(wallet);
     try {
       
       const { blockhash } = await connection.getRecentBlockhash('max');
       let transaction: Transaction = new Transaction({feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
       // transaction.addSigner(wallet.publicKey)
       transaction = await wallet.signTransaction(transaction);
-      console.log(transaction)
+      console.log("signed",transaction);
       const rawTransaction = transaction.serialize();
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
@@ -179,7 +183,7 @@ export class TransactionService {
       this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
       console.log(confirmTx,txid)
     } catch (error) {
-      console.error(error)
+      console.error(error);
       this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
     }
   }
