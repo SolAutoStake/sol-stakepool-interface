@@ -103,7 +103,8 @@ export class TransactionService {
       );
 
       const fromPubkey = wallet.publicKey;
-      const newAccountPubkey = new Account().publicKey;
+      const newAcc = new Account();
+      const newAccountPubkey = newAcc.publicKey;
       const authorizedPubkey = wallet.publicKey;
       const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
       const lockup = new Lockup(0, 0, fromPubkey);
@@ -115,7 +116,7 @@ export class TransactionService {
         lockup,
         lamports,
       });
-      this.sendTx([tx])
+      this.sendTx([tx],[newAcc])
 
     }
     catch (err) {
@@ -123,7 +124,7 @@ export class TransactionService {
     }
 
   }
-  private async sendTx(txParam: TransactionInstruction[] | Transaction[]) {
+  private async sendTx(txParam: TransactionInstruction[] | Transaction[], signers?:any) {
     const connection: Connection = this.walletService.con;
     // sol-wallet-adapter
     const wallet = this.walletService.walletController;
@@ -131,6 +132,7 @@ export class TransactionService {
       const { blockhash } = await connection.getRecentBlockhash('max');
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
       transaction = await wallet.signTransaction(transaction);
+      if (signers) transaction.partialSign(...signers);
       const rawTransaction = transaction.serialize();
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
@@ -184,6 +186,7 @@ export class TransactionService {
     });
     this.sendTx([txIns]);
   };
+
   depositToStakePOOL(
     stakeAccountAddress: string
   ) {
@@ -260,14 +263,12 @@ export class TransactionService {
       authorizedPubkey: this.walletService.walletController.publicKey,
       newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
       stakeAuthorizationType: { index: 1 }, // Withdraw
-      custodianPubkey: this.walletService.walletController.publicKey
     })
     const txAuthToPOOLOWNERTX = StakeProgram.authorize({
       stakePubkey,
       authorizedPubkey: this.walletService.walletController.publicKey,
       newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
       stakeAuthorizationType: { index: 0 }, // Staker
-      custodianPubkey: this.walletService.walletController.publicKey
     })
 
     const depositTX = new TransactionInstruction({
@@ -278,6 +279,7 @@ export class TransactionService {
     const transactions: any = [txAuthToStakerTX,txAuthToPOOLOWNERTX, depositTX]
     this.sendTx(transactions);
   };
+  
   async delegate(stakeAccParam, delegateAccParam) {
     // const connection: Connection = this.walletService.con;
     // const wallet: Account = this.walletService.acc;
