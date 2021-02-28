@@ -26,6 +26,15 @@ export class WalletService {
   public TOKEN_PROGRAM_ID: PublicKey = new PublicKey(
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
   );
+  public STAKE_PROGRAM_ID: PublicKey = new PublicKey(
+    "Stake11111111111111111111111111111111111111"
+  );
+  public Sysvar_clock: PublicKey = new PublicKey(
+    "SysvarC1ock11111111111111111111111111111111"
+  );
+  public Sysvar_stake_history: PublicKey = new PublicKey(
+    "SysvarStakeHistory1111111111111111111111111"
+  );
   public WRAPPED_SOL_MINT = new PublicKey(
     'So11111111111111111111111111111111111111112',
   );
@@ -62,7 +71,15 @@ export class WalletService {
   public POOL_WITHDRAW_AUTHORITY = new PublicKey(
     'BepTWihwFSMgqDchwGhkSiYTkzHUC2urG9tVpwxCW7vg'
   );
-
+  public VALIDATOR_STAKE_LIST = new PublicKey(
+    '14brXrbKoL2ahUKGBRubXUDPAAvHDBGEmVnFrQgoE1f7'
+  )
+  public STAKE_ACCOUNT_POOL_OWNED_1 = new PublicKey(
+    'EUuiYECwpBMp1FMeKaGXKZggFkRCEoHF2oEjrrgs2baU'
+  )
+  public STAKE_ACCOUNT_POOL_OWNED_2 = new PublicKey(
+    '33FQwAUomJxozTnrzeiDxYNJffWZec72fsGQi9wmda9V'
+  )
   public ENDPOINTS = [
     {
       name: "mainnet-beta" as ENV,
@@ -115,6 +132,7 @@ export class WalletService {
       this.toastMessageService.msg.next({ message: 'wallet connected', segmentClass: 'toastInfo' });
     });
     this.walletController.on('disconnect', () => {
+      this.currentWalletSubject.next(null)
       this.toastMessageService.msg.next({ message: 'wallet disconnected', segmentClass: 'toastInfo' })
     });
     await this.walletController.connect();
@@ -208,6 +226,7 @@ export class WalletService {
     }
     return this.apiService.post(this.networkSubject.value.endpoint, raw).pipe(
       map((data) => {
+        console.log(data)
         return data.result;
       }),
       catchError((error) => this.formatErrors(error))

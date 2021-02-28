@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { IonInput, IonSelect } from '@ionic/angular';
+import { IonInput } from '@ionic/angular';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Token } from 'src/app/models';
 import { TransactionService } from 'src/app/services/transaction.service';

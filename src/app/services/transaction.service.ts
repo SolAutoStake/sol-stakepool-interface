@@ -3,7 +3,7 @@ import { PopoverController } from '@ionic/angular';
 import * as BufferLayout from "buffer-layout";
 import BN from 'bn.js';
 class Numberu64 extends BN {
-  constructor(a){
+  constructor(a) {
     super(a);
   }
 
@@ -40,6 +40,7 @@ import {
   Authorized,
   Lockup,
   TransactionInstruction,
+  StakeAuthorizationType,
 } from '@solana/web3.js';
 import { throwError } from 'rxjs';
 import { ToastMessageService } from './toast-message.service';
@@ -88,7 +89,7 @@ export class TransactionService {
         lamports,
       })
 
-      this.sendTx(txParam);
+      this.sendTx([txParam]);
     }
 
   }
@@ -101,21 +102,20 @@ export class TransactionService {
         StakeProgram.space,
       );
 
-	  const fromPubkey = wallet.publicKey;
-	  const newAccountPubkey = new Account().publicKey;
-	  const authorizedPubkey = wallet.publicKey;
-	  const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
-	  const lockup = new Lockup(0, 0, fromPubkey);
-	  const lamports = minimumAmount + sol * LAMPORTS_PER_SOL;
-      let tx:Transaction = StakeProgram.createAccount({
-		fromPubkey,
-		stakePubkey: newAccountPubkey,
-		authorized,
-		lockup,
-		lamports,
+      const fromPubkey = wallet.publicKey;
+      const newAccountPubkey = new Account().publicKey;
+      const authorizedPubkey = wallet.publicKey;
+      const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
+      const lockup = new Lockup(0, 0, fromPubkey);
+      const lamports = minimumAmount + sol * LAMPORTS_PER_SOL;
+      let tx: Transaction = StakeProgram.createAccount({
+        fromPubkey,
+        stakePubkey: newAccountPubkey,
+        authorized,
+        lockup,
+        lamports,
       });
-
-      this.sendTx(tx)
+      this.sendTx([tx])
 
     }
     catch (err) {
@@ -123,13 +123,33 @@ export class TransactionService {
     }
 
   }
+  private async sendTx(txParam: TransactionInstruction[] | Transaction[]) {
+    const connection: Connection = this.walletService.con;
+    // sol-wallet-adapter
+    const wallet = this.walletService.walletController;
+    try {
+      const { blockhash } = await connection.getRecentBlockhash('max');
+      let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
+      transaction = await wallet.signTransaction(transaction);
+      const rawTransaction = transaction.serialize();
+      this.popoverController.dismiss()
+      const txid = await connection.sendRawTransaction(rawTransaction);
+      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
+      const confirmTx = await connection.confirmTransaction(txid, 'max');
+      this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
+      console.log(confirmTx, txid)
+    } catch (error) {
+      console.error(error);
+      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
+    }
+  }
 
-  sell_stSOL (
+  sell_stSOL(
     amount: number,
     userwSOLaddress: string,
     userstSOLaddress: string
-  ){
-    console.log(amount,userwSOLaddress,userstSOLaddress);
+  ) {
+    console.log(amount, userwSOLaddress, userstSOLaddress);
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction"),
       uint64("amount")
@@ -139,7 +159,7 @@ export class TransactionService {
     dataLayout.encode(
       {
         instruction: 11, // sell stSOL insturction
-        amount:  new Numberu64(amount).toBuffer()
+        amount: new Numberu64(amount).toBuffer()
       },
       data
     );
@@ -156,39 +176,108 @@ export class TransactionService {
       { pubkey: new PublicKey(userstSOLaddress), isSigner: false, isWritable: true },
       { pubkey: this.walletService.walletController.publicKey, isSigner: true, isWritable: false },
     ];
-  
-    const txIns =  new TransactionInstruction({
+
+    const txIns = new TransactionInstruction({
       keys,
       programId: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID,
       data,
     });
-    this.sendTx(txIns);
+    this.sendTx([txIns]);
   };
-  private async sendTx(txParam: TransactionInstruction | Transaction) {
-    const connection: Connection = this.walletService.con;
-    const wallet = this.walletService.walletController;
-    console.log(wallet);
-    try {
-      
-      const { blockhash } = await connection.getRecentBlockhash('max');
-      let transaction: Transaction = new Transaction({feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
-      // transaction.addSigner(wallet.publicKey)
-      transaction = await wallet.signTransaction(transaction);
-      console.log("signed",transaction);
-      const rawTransaction = transaction.serialize();
-      this.popoverController.dismiss()
-      const txid = await connection.sendRawTransaction(rawTransaction);
-      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-      const confirmTx = await connection.confirmTransaction(txid,'max');
-      this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
-      console.log(confirmTx,txid)
-    } catch (error) {
-      console.error(error);
-      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
-    }
-  }
+  depositToStakePOOL(
+    stakeAccountAddress: string
+  ) {
+    const dataLayout = BufferLayout.struct([
+      BufferLayout.u8("instruction")
+    ]);
 
+    const data = Buffer.alloc(dataLayout.span);
+    dataLayout.encode(
+      {
+        instruction: 6, // deposit stakeaccount to  insturction
+      },
+      data
+    );
 
+    ///   User: Deposit some stake into the pool.  The output is a "pool" token representing ownership
+    ///   into the pool. Inputs are converted to the current ratio.
+    ///
+    ///   0. [w] Stake pool
+    ///   1. [w] Validator stake list storage account
+    ///   2. [] Stake pool deposit authority
+    ///   3. [] Stake pool withdraw authority
+    ///   4. [w] Stake account to join the pool (withdraw should be set to stake pool deposit)
+    ///   5. [w] Validator stake account for the stake account to be merged with
+    ///   6. [w] User account to receive pool tokens
+    ///   7. [w] Account to receive pool fee tokens
+    ///   8. [w] Pool token mint account
+    ///   9. '[]' Sysvar clock account (required)
+    ///   10. '[]' Sysvar stake history account
+    ///   11. [] Pool token program id,
+    ///   12. [] Stake program id,
+
+    // PULL ACTIVESTAKEACCOUNT PARSED DATA
+    // COMPARE VOTED ACCOUNT
+    // RETURN THE COMPARED STAKE_ACCOUNT_POOL_OWNED ADDRESS PUBKEY
+    // stakeAccountAddress
+    const validatorVoteAccount1 = new PublicKey('2HUKQz7W2nXZSwrdX5RkfS2rLU4j1QZLjdGCHcoUKFh3');
+    const validatorVoteAccount2 = new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG');
+
+    const poolOwned_StakeAccount = [
+      {
+        pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_1,
+        voteAccount: validatorVoteAccount1
+      },
+      {
+        pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_2,
+        voteAccount: validatorVoteAccount2
+      }
+    ]
+
+    const keys = [
+      // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.VALIDATOR_STAKE_LIST, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.POOL_WITHDRAW_AUTHORITY, isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(stakeAccountAddress), isSigner: false, isWritable: true },
+      { pubkey: poolOwned_StakeAccount[0].pubkey, isSigner: false, isWritable: true },
+      // todo - ask user for stSOL address
+      { pubkey: new PublicKey('GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB'), isSigner: false, isWritable: true },
+      { pubkey: this.walletService.LIQ_POOL_ST_SOL_ACCOUNT, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.ST_SOL_MINT_ACCOUNT, isSigner: true, isWritable: true },
+      { pubkey: this.walletService.Sysvar_clock, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.Sysvar_stake_history, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.STAKE_PROGRAM_ID, isSigner: false, isWritable: false },
+
+    ];
+
+    const stakePubkey = new PublicKey('GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB');
+
+    const txAuthToStakerTX = StakeProgram.authorize({
+      stakePubkey,
+      authorizedPubkey: this.walletService.walletController.publicKey,
+      newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
+      stakeAuthorizationType: { index: 1 }, // Withdraw
+      custodianPubkey: this.walletService.walletController.publicKey
+    })
+    const txAuthToPOOLOWNERTX = StakeProgram.authorize({
+      stakePubkey,
+      authorizedPubkey: this.walletService.walletController.publicKey,
+      newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
+      stakeAuthorizationType: { index: 0 }, // Staker
+      custodianPubkey: this.walletService.walletController.publicKey
+    })
+
+    const depositTX = new TransactionInstruction({
+      keys,
+      programId: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID,
+      data,
+    });
+    const transactions: any = [txAuthToStakerTX,txAuthToPOOLOWNERTX, depositTX]
+    this.sendTx(transactions);
+  };
   async delegate(stakeAccParam, delegateAccParam) {
     // const connection: Connection = this.walletService.con;
     // const wallet: Account = this.walletService.acc;
