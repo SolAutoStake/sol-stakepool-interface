@@ -1,0 +1,13 @@
+<ion-card>
+    <ion-card-header>
+        <ion-card-subtitle style="font-size: 22px;">sell your stSOL</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+        <p>
+            selling your stSOL allow you to receive your staked sol immediately
+        </p>
+        <small>this action will cost 0.3% of your staked sol</small>
+        <ion-button (click)="sell_stSOL()">sell</ion-button>
+        <small *ngIf="sendBtnClicked">please approve transaction on wallet provider popup</small>
+    </ion-card-content>
+</ion-card>
