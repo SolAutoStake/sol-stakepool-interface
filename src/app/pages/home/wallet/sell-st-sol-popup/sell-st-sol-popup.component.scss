@@ -3,7 +3,34 @@ ion-card{
     padding: 10px;
 }
 p{
-    padding: 40px 0;
+    padding: 20px 0;
+}
+#amount-group{
+    ion-input{
+        width: 150px;
+        color: var(--sol-stake-prime);
+        margin: 0 auto;
+        text-align: center;
+        --padding-start: 0;
+        font-size: 22px;
+        font-weight: bold;
+        --padding-bottom: 0;
+    }
+    ion-range{
+        --knob-background: var(--sol-stake-active);
+        --bar-background: var(--sol-stake-prime);
+    }
+    small{
+        display: block;
+        text-align: center;
+    }
+}
+#select-wsolWallet-wrapper{
+    margin: 15px 0;
+    ion-select{
+        border: 1px dashed var(--sol-stake-prime);
+        padding: 10px;
+    }
 }
 ion-button{
     --background: white;

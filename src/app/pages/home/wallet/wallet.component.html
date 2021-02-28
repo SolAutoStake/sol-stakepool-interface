@@ -21,7 +21,7 @@
                     </div>
                     <div class="area-actions">
                         <ion-button fill="clear" *ngIf="token.isNative" (click)="openSendTokenPopup()">send</ion-button>
-                        <ion-button fill="clear" *ngIf="token.name == 'stSOL' || token.name == 'OLD stSOL'" (click)="sell()">sell</ion-button>
+                        <ion-button fill="clear" *ngIf="token.name == 'stSOL' || token.name == 'OLD stSOL'" (click)="sell(token)">sell</ion-button>
 
                     </div>
                 </div>

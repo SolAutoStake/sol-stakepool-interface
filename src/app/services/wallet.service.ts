@@ -23,16 +23,44 @@ export type ENV = "mainnet-beta" | "testnet" | "devnet" | "localnet";
   providedIn: 'root'
 })
 export class WalletService {
-  protected TOKEN_PROGRAM_ID: PublicKey = new PublicKey(
+  public TOKEN_PROGRAM_ID: PublicKey = new PublicKey(
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
   );
-
-  protected WRAPPED_SOL_MINT = new PublicKey(
+  public WRAPPED_SOL_MINT = new PublicKey(
     'So11111111111111111111111111111111111111112',
   );
-
-  protected MEMO_PROGRAM_ID = new PublicKey(
+  public MEMO_PROGRAM_ID = new PublicKey(
     'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo',
+  );
+  public SMART_POOL_PROGRAM_ACCOUNT_ID = new PublicKey(
+    'E2wGYXEPw46FdJWL1MfRoN3JhQY4w6Dmaz9s4ehV2483'
+  )
+  public STAKE_POOL_STATE_ACCOUNT = new PublicKey(
+    'C3WQybyZc45bhRP4PJnM7JhKQFXmqQR5eWr8n8Lxjgex'
+  );
+  public ST_SOL_MINT_ACCOUNT = new PublicKey(
+    '21ofzqmgounc8bX4CK6j3Ff4zjvX6GmRykUnJAU96zKz'
+  );
+  public LIQ_POOL_STATE_ACCOUNT = new PublicKey(
+    'rxTBFFRfwcgx5YedbwLcKntCwMs9tJoQvzYmRnbpLKS'
+  );
+  public LIQ_POOL_WSOL_ACCOUNT = new PublicKey(
+    '2G3TZSRxmPtuwrdcXMQMjzKdebSXuXrPaupVGzZ1Ssf3'
+  );
+  public LIQ_POOL_ST_SOL_ACCOUNT = new PublicKey(
+    '9ipM64eAyTtV5mY27qrdAe5x143QfcjuDRWp72EZBeez'
+  );
+  public META_LP_MINT_ACCOUNT = new PublicKey(
+    'EYbFdPKbRa3MxGxQy9YgFSFs7448Gq17fWRYSeNhVNtq'
+  );
+  public PDA_LIQ_POOL_AUTHORITY = new PublicKey(
+    'GZMs49Ab3qipCShUrET7XwRwTc383ZtbKRpRb4XpkgJE'
+  );
+  public STAKE_POOL_DEPOSIT_AUTHORITY = new PublicKey(
+    'Lr45T8qwy6a6FRG3LxZ3eBHiPveF2Sos4nypTquVyYx'
+  );
+  public POOL_WITHDRAW_AUTHORITY = new PublicKey(
+    'BepTWihwFSMgqDchwGhkSiYTkzHUC2urG9tVpwxCW7vg'
   );
 
   public ENDPOINTS = [
@@ -91,16 +119,16 @@ export class WalletService {
     });
     await this.walletController.connect();
   }
-  async getTokensOwner(): Promise<any | Token[]>  {
+  async getTokensOwner(): Promise<any | Token[]> {
     const tokenAccounts = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
       programId: this.TOKEN_PROGRAM_ID
     });
-    console.log(tokenAccounts);
+
     const tokenAccountsFiltered: Token[] = tokenAccounts.value.map(wallet => {
       const account = wallet.account
 
       const token: Token = {
-        address: account.data.parsed.info.mint,
+        address: wallet.pubkey.toBase58(),
         name: this.getHardCodedTokenName(account.data.parsed.info.mint),
         amount: account.lamports / LAMPORTS_PER_SOL,
         tokenAmount: account.data.parsed.info.tokenAmount || null,
@@ -114,17 +142,17 @@ export class WalletService {
   private getHardCodedTokenName(name) {
     switch (name) {
       // LEGACY
-      case '21ofzqmgounc8bX4CK6j3Ff4zjvX6GmRykUnJAU96zKz':
+      case this.ST_SOL_MINT_ACCOUNT.toBase58():
         return 'OLD stSOL';
       case '3XrStMayUhNpsFJzmKyynC99fs1Ppbenpj3kpC77EQEh':
         return 'OLD METALP';
       // CURRENT
-      case '9ipM64eAyTtV5mY27qrdAe5x143QfcjuDRWp72EZBeez':
+      case this.LIQ_POOL_ST_SOL_ACCOUNT.toBase58():
         return 'stSOL'
-      case 'EYbFdPKbRa3MxGxQy9YgFSFs7448Gq17fWRYSeNhVNtq':
+      case this.META_LP_MINT_ACCOUNT.toBase58():
         return 'METALP'
       case this.WRAPPED_SOL_MINT.toBase58():
-        return 'Wrapped SOL'
+        return 'wSOL'
         break;
       default:
         return null;

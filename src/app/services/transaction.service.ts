@@ -1,5 +1,29 @@
 import { Injectable } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
+import * as BufferLayout from "buffer-layout";
+import BN from 'bn.js';
+class Numberu64 extends BN {
+  constructor(a){
+    super(a);
+  }
+
+  /**
+   * Convert to Buffer representation
+   */
+  toBuffer() {
+    const a = super.toArray().reverse();
+    const b = Buffer.from(a);
+
+    if (b.length === 8) {
+      return b;
+    }
+
+    //assert__default['default'](b.length < 8, 'Numberu64 too large');
+    const zeroPad = Buffer.alloc(8);
+    b.copy(zeroPad);
+    return zeroPad;
+  }
+}
 import {
   Account,
   Connection,
@@ -22,7 +46,9 @@ import { ToastMessageService } from './toast-message.service';
 
 
 import { WalletService } from './wallet.service';
-
+export const uint64 = (property: string = "uint64"): Object => {
+  return BufferLayout.blob(8, property);
+};
 @Injectable({
   providedIn: 'root'
 })
@@ -76,7 +102,7 @@ export class TransactionService {
       );
 
       const newStakeAccount = new Account();
-      let tx:Transaction = StakeProgram.createAccount({
+      let tx: Transaction = StakeProgram.createAccount({
         fromPubkey: wallet.publicKey,
         stakePubkey: newStakeAccount.publicKey,
         authorized: new Authorized(wallet.publicKey, wallet.publicKey),
@@ -93,15 +119,55 @@ export class TransactionService {
 
   }
 
+  sell_stSOL = (
+    amount: number,
+    userwSOLaddress: string,
+    userstSOLaddress: string
+  ): any => {
+    console.log(amount,userwSOLaddress,userstSOLaddress);
+    const dataLayout = BufferLayout.struct([
+      BufferLayout.u8("instruction"),
+      uint64("amount")
+    ]);
 
-  private async sendTx(txParam:  TransactionInstruction | Transaction) {
+    const data = Buffer.alloc(dataLayout.span);
+    dataLayout.encode(
+      {
+        instruction: 11, // sell stSOL insturction
+        amount:  new Numberu64(amount).toBuffer()
+      },
+      data
+    );
+
+    console.log(this.walletService.walletController.publicKey);
+    const keys = [
+      // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.LIQ_POOL_STATE_ACCOUNT, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.LIQ_POOL_WSOL_ACCOUNT, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.LIQ_POOL_ST_SOL_ACCOUNT, isSigner: false, isWritable: true },
+      { pubkey: this.walletService.PDA_LIQ_POOL_AUTHORITY, isSigner: false, isWritable: false },
+      { pubkey: new PublicKey(userwSOLaddress), isSigner: false, isWritable: true },
+      { pubkey: new PublicKey(userstSOLaddress), isSigner: false, isWritable: true },
+      { pubkey: this.walletService.walletController.publicKey, isSigner: true, isWritable: false },
+    ];
+  
+    const txIns =  new TransactionInstruction({
+      keys,
+      programId: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID,
+      data,
+    });
+    this.sendTx(txIns);
+  };
+  private async sendTx(txParam: TransactionInstruction | Transaction) {
     const connection: Connection = this.walletService.con;
     const wallet = this.walletService.walletController;
     console.log(wallet)
     try {
-
+      
       const { blockhash } = await connection.getRecentBlockhash('max');
-      let transaction: Transaction = new Transaction({ recentBlockhash: blockhash }).add(txParam);
+      let transaction: Transaction = new Transaction({feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(txParam);
       // transaction.addSigner(wallet.publicKey)
       transaction = await wallet.signTransaction(transaction);
       console.log(transaction)
@@ -109,8 +175,9 @@ export class TransactionService {
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
       this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-      const confirmTx = await connection.confirmTransaction(txid);
+      const confirmTx = await connection.confirmTransaction(txid,'max');
       this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
+      console.log(confirmTx,txid)
     } catch (error) {
       console.error(error)
       this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });

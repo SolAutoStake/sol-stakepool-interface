@@ -25,7 +25,8 @@ export class WalletComponent implements OnChanges {
   public solBalance = null
   public usdBalance = null;
   public address = null;
-  tokensByOwner: any[] = [];;
+  tokensByOwner: any[] = [];
+  wSOLwallets = []
   constructor(
     public popoverController: PopoverController,
     public walletService: WalletService,
@@ -36,7 +37,6 @@ export class WalletComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.wallet) {
       this.getWalletData(this.wallet)
-      console.log(this.wallet)
     }
   }
   
@@ -49,24 +49,25 @@ export class WalletComponent implements OnChanges {
       isNative: true
     })
     // SPL tokens
-    this.tokensByOwner = this.tokensByOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
-
-    console.log(this.tokensByOwner)
+    const wrapped = this.tokensByOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
+    this.tokensByOwner = wrapped;
+    this.wSOLwallets = this.tokensByOwner.filter(wallet => wallet.name == 'wSOL');
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({
       component: SendTokenPopupComponent,
       cssClass: "transfer-token-popup",
-      animated: true,
+      animated: true
     });
     return await popover.present();
   }
 
-  async sell(){
+  async sell(token){
     const popover = await this.popoverController.create({
       component: SellStSOLPopupComponent,
       cssClass: "transfer-token-popup",
       animated: true,
+      componentProps: {token, wSOLwallets: this.wSOLwallets}
     });
     return await popover.present();
   }
