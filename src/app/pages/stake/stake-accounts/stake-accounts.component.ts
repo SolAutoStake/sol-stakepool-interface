@@ -14,7 +14,7 @@ import { CreateStakeAccountPopupComponent } from './create-stake-account-popup/c
   styleUrls: ['./stake-accounts.component.scss'],
   providers: [LoaderService]
 })
-export class StakeAccountsComponent implements OnChanges {
+export class StakeAccountsComponent implements OnInit {
   @Input('currentWallet') wallet;
   stakeAccIcon = faUsers;
   public solBalance = null
@@ -29,14 +29,17 @@ export class StakeAccountsComponent implements OnChanges {
   ) { }
   stakeAccounts: Account[] = null;
 
-  ngOnChanges(): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
-    if (this.wallet) {
-      console.log(this.wallet);
+  ngOnInit(): void {
+    this.wallet = this.walletService.walletController ? this.walletService.walletController.publicKey : null;
+    if(this.wallet){
       this.getStakeAccount()
     }
-  }
+    this.walletService.currentWallet$.subscribe(async (wallet) => {
+      this.wallet = wallet
+      this.getStakeAccount()
+    })
+   }
+
   async getStakeAccount() {
     this.stakeAccounts = await this.walletService.getStakeAccountsByOwner().toPromise()
 

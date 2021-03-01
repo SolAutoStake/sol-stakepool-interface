@@ -116,7 +116,7 @@ export class TransactionService {
         lockup,
         lamports,
       });
-      this.sendTx([tx],[newAcc])
+      this.sendTx([tx], [newAcc])
 
     }
     catch (err) {
@@ -124,7 +124,7 @@ export class TransactionService {
     }
 
   }
-  private async sendTx(txParam: TransactionInstruction[] | Transaction[], extraSigners?:Account[]) {
+  private async sendTx(txParam: TransactionInstruction[] | Transaction[], extraSigners?: Account[]) {
     const connection: Connection = this.walletService.con;
     // sol-wallet-adapter
     const wallet = this.walletService.walletController;
@@ -133,32 +133,28 @@ export class TransactionService {
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
       transaction = await wallet.signTransaction(transaction);
       //LMT: check null signatures
-      for(let i=0;i<transaction.signatures.length;i++){
+      for (let i = 0; i < transaction.signatures.length; i++) {
         if (!transaction.signatures[i].signature) {
           throw Error(`missing signature for ${transaction.signatures[i].publicKey.toString()}. Check .isSigner=true in tx accounts`)
         }
       }
       //LMT: add extra signers (fix create-token-account problem)
       if (extraSigners) transaction.partialSign(...extraSigners);
-      const rawTransaction = transaction.serialize({requireAllSignatures:false});
+      const rawTransaction = transaction.serialize({ requireAllSignatures: false });
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
       this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
       const confirmTx = await connection.confirmTransaction(txid, 'max');
       this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
       console.log(confirmTx, txid)
+      this.walletService.currentWalletSubject.next(wallet.publicKey)
     } catch (error) {
       console.error(error);
       this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
     }
   }
 
-  sell_stSOL(
-    amount: number,
-    userwSOLaddress: string,
-    userstSOLaddress: string
-  ) {
-    console.log(amount, userwSOLaddress, userstSOLaddress);
+  public sell_stSOL(amount: number, userwSOLaddress: string, userstSOLaddress: string) {
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction"),
       uint64("amount")
@@ -195,11 +191,11 @@ export class TransactionService {
   };
 
   async depositToStakePOOL(
-    stakeAccountAddress: string
+    stakeAccount: any
   ) {
 
-    console.log(stakeAccountAddress)
-    const userStakeAccPubkey = new PublicKey(stakeAccountAddress);
+    console.log(stakeAccount)
+    const userStakeAccPubkey = new PublicKey(stakeAccount.publicKey);
 
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction")
@@ -234,20 +230,20 @@ export class TransactionService {
     // COMPARE VOTED ACCOUNT
     // RETURN THE COMPARED STAKE_ACCOUNT_POOL_OWNED ADDRESS PUBKEY
     // stakeAccountAddress
-    const validatorVoteAccount1 = new PublicKey('2HUKQz7W2nXZSwrdX5RkfS2rLU4j1QZLjdGCHcoUKFh3');
-    const validatorVoteAccount2 = new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG');
 
+    // stakeconomy validators
     const poolOwned_StakeAccount = [
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_1,
-        voteAccount: validatorVoteAccount1
+        voteAccount: new PublicKey('2HUKQz7W2nXZSwrdX5RkfS2rLU4j1QZLjdGCHcoUKFh3')
       },
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_2,
-        voteAccount: validatorVoteAccount2
+        voteAccount: new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG')
       }
     ]
-
+    const findVoter = poolOwned_StakeAccount.filter(voter => voter.voteAccount.toBase58() == stakeAccount.data.parsed.info.stake.delegation.voter)[0]
+    console.log(findVoter, stakeAccount.data.parsed.info.stake.delegation.voter)
     const keys = [
       // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
       { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: true },
@@ -290,7 +286,7 @@ export class TransactionService {
       data,
     });
 
-    const transactions: any = [txAuthToStakerTX,txAuthToPOOLOWNERTX, depositTX]
+    const transactions: any = [txAuthToStakerTX, txAuthToPOOLOWNERTX, depositTX]
     await this.sendTx(transactions);
 
   };

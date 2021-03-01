@@ -7,6 +7,7 @@ import { ValidatorListComponent } from './validator-list/validator-list.componen
 import { StakeAccountsComponent } from './stake-accounts/stake-accounts.component';
 import { DelegatePopupComponent } from './validator-list/delegate-popup/delegate-popup.component';
 import { CreateStakeAccountPopupComponent } from './stake-accounts/create-stake-account-popup/create-stake-account-popup.component';
+import { PoolComponent } from './pool/pool.component';
 
 
 
@@ -23,7 +24,7 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [StakeComponent, ValidatorListComponent, StakeAccountsComponent, DelegatePopupComponent, CreateStakeAccountPopupComponent],
+  declarations: [StakeComponent, ValidatorListComponent, StakeAccountsComponent, DelegatePopupComponent, CreateStakeAccountPopupComponent, PoolComponent],
   imports: [
     CommonModule,
     SharedModule,

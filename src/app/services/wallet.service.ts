@@ -97,10 +97,10 @@ export class WalletService {
   public con: Connection = null;
 
   public walletController: Wallet = null
-  private currentWalletSubject = new Subject<PublicKey>();
+  public currentWalletSubject = new Subject<PublicKey>();
   public currentWallet$: Observable<PublicKey> = this.currentWalletSubject
     .asObservable()
-    .pipe(distinctUntilChanged());
+    // .pipe(distinctUntilChanged());
 
   public networkSubject = new BehaviorSubject<any>(this.ENDPOINTS[0] as any);
   public providerSubject = new BehaviorSubject<any>(this.WALLET_PROVIDERS[0] as any);
@@ -203,7 +203,7 @@ export class WalletService {
   }
 
 
-  public getStakeAccountsByOwner(): Observable<any> {
+  public getStakeAccountsByOwner(): Observable<[]> {
     var raw = {
       "jsonrpc": "2.0",
       "id": 1,

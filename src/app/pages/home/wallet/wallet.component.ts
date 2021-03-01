@@ -16,7 +16,7 @@ import { SellStSOLPopupComponent } from './sell-st-sol-popup/sell-st-sol-popup.c
   styleUrls: ['./wallet.component.scss'],
   providers: [LoaderService]
 })
-export class WalletComponent implements OnChanges {
+export class WalletComponent implements OnInit {
   @Input('currentWallet') wallet;
   copyAddress = faCopy;
   walletIcon = faWallet;
@@ -34,14 +34,23 @@ export class WalletComponent implements OnChanges {
     public loaderService: LoaderService
   ) { }
 
-  ngOnChanges(): void {
-    if (this.wallet) {
+  ngOnInit(): void {
+    this.wallet = this.walletService.walletController ? this.walletService.walletController.publicKey : null;
+    if(this.wallet){
       this.getWalletData(this.wallet)
     }
-  }
+    this.walletService.currentWallet$.subscribe(async (wallet) => {
+      this.wallet = wallet
+      this.getWalletData(this.wallet)
+    })
+   }
+
+
   
   async getWalletData(wallet) {
-    this.tokensByOwner.push({
+    this.loaderService.show()
+    let tempTokenOwner = [];
+    tempTokenOwner.push({
       address: this.wallet.toBase58(),
       name: 'SOL',
       amount: await this.walletService.con.getBalance(wallet) / LAMPORTS_PER_SOL,
@@ -49,9 +58,10 @@ export class WalletComponent implements OnChanges {
       isNative: true
     })
     // SPL tokens
-    const wrapped = this.tokensByOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
-    this.tokensByOwner = wrapped;
+    tempTokenOwner = tempTokenOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
+    this.tokensByOwner = tempTokenOwner;
     this.wSOLwallets = this.tokensByOwner.filter(wallet => wallet.name == 'wSOL');
+    this.loaderService.hide();
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

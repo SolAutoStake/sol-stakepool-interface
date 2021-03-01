@@ -1,0 +1,44 @@
+<ion-card id="area-card">
+    <div id="area-head">
+        <ion-card-title id="area-card-title">
+            <fa-icon [icon]="poolIcon"></fa-icon>pool
+        </ion-card-title>
+
+    </div>
+    <ng-container *ngIf="wallet; else emptyState">
+        <div id="pool-informative">
+            <div id="title">
+                stake pool reward
+            </div>
+            Liquidity providers earn a 0.3% fee on all trades proportional to their share of the pool. Fees are added to
+            the pool,
+            accrue in real time and can be claimed by withdrawing your liquidity.
+        </div>
+        <div id="pool-area">
+            <div id="join-pool">
+                <ion-grid>
+                    <ion-row id="select-stake-account-wrapper">
+                        <ion-lable>active stake account wallets</ion-lable><br>
+                        <ion-select interface="popover"  placeholder="select wallet" (ionChange)="setSelectedActiveStakeAccount($event)">
+                            <ion-select-option *ngFor="let wallet of activeStakeAccounts" [value]="wallet">
+                                <span>
+                                    {{wallet.pubkey}}
+                                </span>
+                            </ion-select-option>
+                        </ion-select>
+                    </ion-row>
+                    <ion-row>
+                        <ion-button (click)="joinPool()" [disabled]="selectedActiveStakeAccount == null ">join pool</ion-button>
+                    </ion-row>
+                </ion-grid>
+            </div>
+        </div>
+        <div id="my-pools">
+
+        </div>
+    </ng-container>
+    <ng-template #emptyState>
+        <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
+        <app-empty-state></app-empty-state>
+    </ng-template>
+</ion-card>
