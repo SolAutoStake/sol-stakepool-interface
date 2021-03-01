@@ -25,7 +25,9 @@
                 <div>{{account.account.data.parsed.type}}</div>
                 <div class="area-actions">
                     <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'initialized'"
-                        (click)="withdrawFundsFromStakeAcc(account)">withdraw</ion-button>
+                        (click)="openWithdawPopup(account)">withdraw</ion-button>
+                        <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'initialized'"
+                        (click)="openDelegatePopup(account)">delegate</ion-button>
                     <ion-button fill="clear" *ngIf="account.account.data.parsed.type == 'delegated'"
                         (click)="undelegate(account)">undelegate</ion-button>
                 </div>

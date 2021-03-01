@@ -74,6 +74,10 @@ export class WalletService {
   public VALIDATOR_STAKE_LIST = new PublicKey(
     '14brXrbKoL2ahUKGBRubXUDPAAvHDBGEmVnFrQgoE1f7'
   )
+  public STAKECONOMY_VOTE_ACCOUNTS = [
+    new PublicKey('2HUKQz7W2nXZSwrdX5RkfS2rLU4j1QZLjdGCHcoUKFh3'),
+    new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG'),
+  ]
   public STAKE_ACCOUNT_POOL_OWNED_1 = new PublicKey(
     'EUuiYECwpBMp1FMeKaGXKZggFkRCEoHF2oEjrrgs2baU'
   )

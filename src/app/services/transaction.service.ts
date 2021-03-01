@@ -41,6 +41,7 @@ import {
   Lockup,
   TransactionInstruction,
   StakeAuthorizationType,
+  WithdrawStakeParams,
 } from '@solana/web3.js';
 import { throwError } from 'rxjs';
 import { ToastMessageService } from './toast-message.service';
@@ -131,17 +132,19 @@ export class TransactionService {
     try {
       const { blockhash } = await connection.getRecentBlockhash('max');
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
-      transaction = await wallet.signTransaction(transaction);
+      //LMT: add extra signers (fix create-token-account problem)
+      if (extraSigners) transaction.partialSign(...extraSigners);
       //LMT: check null signatures
       for (let i = 0; i < transaction.signatures.length; i++) {
         if (!transaction.signatures[i].signature) {
           throw Error(`missing signature for ${transaction.signatures[i].publicKey.toString()}. Check .isSigner=true in tx accounts`)
         }
       }
-      //LMT: add extra signers (fix create-token-account problem)
-      if (extraSigners) transaction.partialSign(...extraSigners);
-      const rawTransaction = transaction.serialize({ requireAllSignatures: false });
+      transaction = await wallet.signTransaction(transaction);
       this.popoverController.dismiss()
+
+
+      const rawTransaction = transaction.serialize({ requireAllSignatures: false });
       const txid = await connection.sendRawTransaction(rawTransaction);
       this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
       const confirmTx = await connection.confirmTransaction(txid, 'max');
@@ -195,7 +198,7 @@ export class TransactionService {
     stSOLAddress: string
   ) {
 
-    console.log(stakeAccount,stSOLAddress)
+    console.log(stakeAccount, stSOLAddress)
     const userStakeAccPubkey = new PublicKey(stakeAccount.pubkey.toString());
 
     const dataLayout = BufferLayout.struct([
@@ -230,15 +233,14 @@ export class TransactionService {
     const poolOwned_StakeAccount = [
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_1,
-        voteAccount: new PublicKey('2HUKQz7W2nXZSwrdX5RkfS2rLU4j1QZLjdGCHcoUKFh3')
+        voteAccount: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[0]
       },
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_2,
-        voteAccount: new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG')
+        voteAccount: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[1]
       }
     ]
     const findVoter = poolOwned_StakeAccount.filter(voter => voter.voteAccount.toBase58() == stakeAccount.account.data.parsed.info.stake.delegation.voter)[0]
-    console.log(findVoter.voteAccount.toBase58(), stakeAccount.account.data.parsed.info.stake.delegation.voter)
     const keys = [
       // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
       { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: true },
@@ -286,45 +288,37 @@ export class TransactionService {
 
   };
 
-  async delegate(stakeAccParam, delegateAccParam) {
-    // const connection: Connection = this.walletService.con;
-    // const wallet: Account = this.walletService.acc;
-    // const { blockhash } = await connection.getRecentBlockhash('max');
+  async delegate(stakeAccount: Account) {
+    const connection: Connection = this.walletService.con;
+    const authorized = this.walletService.walletController;
 
-    // const stakeAcc: Transaction = StakeProgram.createAccount(stakeAccParam);
-    // const delegateInstruction: Transaction = StakeProgram.delegate(delegateAccParam)
-    // const ins: Transaction[] = [stakeAcc, delegateInstruction]
-    // const tx: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...ins);
-    // console.log(tx);
-    // try {
-    //   const txid = await sendAndConfirmTransaction(connection, tx, [wallet], {
-    //     commitment: 'singleGossip',
-    //   });
-    //   this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
-    //   console.log(txid);
-    //   return true;
-    // } catch (error) {
-    //   console.error(error);
-    //   this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
-    // }
+    console.log(stakeAccount);
+    const flipChanceValidator = Math.floor(Math.random() * Math.floor(2));
+
+    let delegation = StakeProgram.delegate({
+      stakePubkey: stakeAccount.publicKey,
+      authorizedPubkey: authorized.publicKey,
+      votePubkey: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[flipChanceValidator],
+    });
+    console.log(authorized.publicKey)
+    await this.sendTx([delegation]);
   }
 
   async withdrawFromStakeAccount(stakeAccountPubKey, lamports: number) {
-    // const connection: Connection = this.walletService.con;
-    // const wallet = this.walletService.walletController;
-    // const isValid = await this.verifyBalance(lamports, stakeAccountPubKey);
-    // if (isValid) {
-    //   const authorizedPubkey = wallet.publicKey
-    //   const toPubkey = authorizedPubkey;
-    //   const params = {
-    //     stakePubkey: stakeAccountPubKey,
-    //     authorizedPubkey,
-    //     toPubkey,
-    //     lamports,
-    //   };
-    //   const tx = StakeProgram.withdraw(params);
-    //   this.sendTx(tx, wallet)
-    // }
+    const wallet = this.walletService.walletController;
+    const isValid = await this.verifyBalance(lamports, stakeAccountPubKey);
+    if (isValid) {
+      const authorizedPubkey = wallet.publicKey
+      const toPubkey = authorizedPubkey;
+      const params: WithdrawStakeParams = {
+        stakePubkey: stakeAccountPubKey,
+        authorizedPubkey,
+        toPubkey,
+        lamports,
+      };
+      const tx = StakeProgram.withdraw(params);
+      this.sendTx([tx])
+    }
   }
 
   async undelegateFromVoteAccount(stakePubkey) {

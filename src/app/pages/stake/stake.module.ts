@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { StakeComponent } from './stake.component';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ValidatorListComponent } from './validator-list/validator-list.component';
+
 import { StakeAccountsComponent } from './stake-accounts/stake-accounts.component';
-import { DelegatePopupComponent } from './validator-list/delegate-popup/delegate-popup.component';
 import { CreateStakeAccountPopupComponent } from './stake-accounts/create-stake-account-popup/create-stake-account-popup.component';
 import { PoolComponent } from './pool/pool.component';
+import { DelegatePopupComponent } from './stake-accounts/delegate-popup/delegate-popup.component';
+import { WithdrawFromStakeAccountPopupComponent } from './stake-accounts/withdraw-from-stake-account-popup/withdraw-from-stake-account-popup.component';
 
 
 
@@ -24,7 +25,13 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [StakeComponent, ValidatorListComponent, StakeAccountsComponent, DelegatePopupComponent, CreateStakeAccountPopupComponent, PoolComponent],
+  declarations: [StakeComponent,
+    StakeAccountsComponent,
+    CreateStakeAccountPopupComponent,
+    DelegatePopupComponent,
+    PoolComponent,
+    WithdrawFromStakeAccountPopupComponent
+  ],
   imports: [
     CommonModule,
     SharedModule,

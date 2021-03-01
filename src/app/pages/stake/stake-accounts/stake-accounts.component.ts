@@ -8,6 +8,8 @@ import { TransactionService } from 'src/app/services/transaction.service';
 import { LoaderService } from 'src/app/services/loader.service';
 import { PopoverController } from '@ionic/angular';
 import { CreateStakeAccountPopupComponent } from './create-stake-account-popup/create-stake-account-popup.component';
+import { DelegatePopupComponent } from './delegate-popup/delegate-popup.component';
+import { WithdrawFromStakeAccountPopupComponent } from './withdraw-from-stake-account-popup/withdraw-from-stake-account-popup.component';
 @Component({
   selector: 'app-stake-accounts',
   templateUrl: './stake-accounts.component.html',
@@ -45,13 +47,7 @@ export class StakeAccountsComponent implements OnChanges {
   async usdPrice(sol) {
     return this.utilsService.solanaUsdPrice(sol);
   }
-  // todo - add UI to get amound of sol
-  withdrawFundsFromStakeAcc(stakeAccount) {
-    console.log(stakeAccount)
-    const pubKey = new PublicKey(stakeAccount.pubkey);
-    const sol = 0.5 * LAMPORTS_PER_SOL;
-    this.transactionService.withdrawFromStakeAccount(pubKey, sol);
-  }
+
   async getstakeActive() {
     //  const res = await this.walleService.con.getStakeActivation(
     //   new PublicKey("uiT7UEeGrJbNzzjTz9VN5bpTqLvZzU219BvDCF7LRsj"),
@@ -66,10 +62,26 @@ export class StakeAccountsComponent implements OnChanges {
     });
     return await popover.present();
   }
-  // remove funds from stake account
-  undelegate(stakeAccount) {
-    const pubKey = new PublicKey(stakeAccount.pubkey);
-    this.transactionService.undelegateFromVoteAccount(pubKey);
+
+  async openDelegatePopup(stakeAccount) {
+    const popover = await this.popoverController.create({
+      component: DelegatePopupComponent,
+      cssClass: "transfer-token-popup",
+      animated: true,
+      componentProps: { stakeAccount }
+    });
+    return await popover.present();
+  }
+
+
+  async openWithdawPopup(stakeAccount) {
+    const popover = await this.popoverController.create({
+      component: WithdrawFromStakeAccountPopupComponent,
+      cssClass: "transfer-token-popup",
+      animated: true,
+      componentProps: { stakeAccount }
+    });
+    return await popover.present();
   }
 
 }

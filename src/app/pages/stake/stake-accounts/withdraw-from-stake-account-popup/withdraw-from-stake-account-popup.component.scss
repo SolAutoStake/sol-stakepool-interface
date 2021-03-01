@@ -5,13 +5,6 @@ ion-card{
 .form-group {
     margin: 30px 0;
 }
-#select-stake-acc-wrapper{
-    margin: 15px 0;
-    ion-select{
-        border: 1px dashed var(--sol-stake-prime);
-        padding: 10px;
-    }
-}
 #amount-group{
     ion-input{
         width: 150px;
@@ -27,6 +20,10 @@ ion-card{
         --knob-background: var(--sol-stake-active);
         --bar-background: var(--sol-stake-prime);
     }
+    small{
+        display: block;
+        text-align: center;
+    }
 }
 #address-group{
     ion-input{   
@@ -34,15 +31,23 @@ ion-card{
         font-size: 12px;
     }
 }
-ion-button {
-    width: 50%;
-    border: 0;
-    border-radius: 0;
-    --border-radius: 0;
-}
-#cancel-btn{
-    color: var(--sol-stake-err);
-}
-#delegate-btn{
-    --background: var(--sol-stake-prime);
+
+ion-button{
+    --background: white;
+    --color: var(--sol-stake-active);
+    --padding: 10px 36px;
+    --transition:all 0.3s ease; 
+    --border-radius: var(--sol-stake-button-border-radius);
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 400;
+    letter-spacing: 0.6px;
+    --opacity: 0.9;
+    width: 100%;
+    &:hover{
+        --opacity: 1;
+    }
+    &:disabled{
+        --opacity: 0.5;
+    }
 }
