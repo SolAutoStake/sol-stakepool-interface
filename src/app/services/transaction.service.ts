@@ -131,6 +131,7 @@ export class TransactionService {
     const wallet = this.walletService.walletController;
     try {
       const { blockhash } = await connection.getRecentBlockhash('max');
+      console.log(extraSigners);
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
       //LMT: add extra signers (fix create-token-account problem)
       if (extraSigners) transaction.partialSign(...extraSigners);
