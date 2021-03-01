@@ -124,7 +124,7 @@ export class TransactionService {
     }
 
   }
-  private async sendTx(txParam: TransactionInstruction[] | Transaction[], signers?:any) {
+  private async sendTx(txParam: TransactionInstruction[] | Transaction[], extraSigners?:Account[]) {
     const connection: Connection = this.walletService.con;
     // sol-wallet-adapter
     const wallet = this.walletService.walletController;
@@ -132,8 +132,15 @@ export class TransactionService {
       const { blockhash } = await connection.getRecentBlockhash('max');
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
       transaction = await wallet.signTransaction(transaction);
-      if (signers) transaction.partialSign(...signers);
-      const rawTransaction = transaction.serialize();
+      //LMT: check null signatures
+      for(let i=0;i<transaction.signatures.length;i++){
+        if (!transaction.signatures[i].signature) {
+          throw Error(`missing signature for ${transaction.signatures[i].publicKey.toString()}. Check .isSigner=true in tx accounts`)
+        }
+      }
+      //LMT: add extra signers (fix create-token-account problem)
+      if (extraSigners) transaction.partialSign(...extraSigners);
+      const rawTransaction = transaction.serialize({requireAllSignatures:false});
       this.popoverController.dismiss()
       const txid = await connection.sendRawTransaction(rawTransaction);
       this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
@@ -187,9 +194,13 @@ export class TransactionService {
     this.sendTx([txIns]);
   };
 
-  depositToStakePOOL(
+  async depositToStakePOOL(
     stakeAccountAddress: string
   ) {
+
+    console.log(stakeAccountAddress)
+    const userStakeAccPubkey = new PublicKey(stakeAccountAddress);
+
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction")
     ]);
@@ -209,14 +220,14 @@ export class TransactionService {
     ///   1. [w] Validator stake list storage account
     ///   2. [] Stake pool deposit authority
     ///   3. [] Stake pool withdraw authority
-    ///   4. [w] Stake account to join the pool (withdraw should be set to stake pool deposit)
+    ///   4. [w] Stake account to join the pool (owned by the user/signer)
     ///   5. [w] Validator stake account for the stake account to be merged with
     ///   6. [w] User account to receive pool tokens
     ///   7. [w] Account to receive pool fee tokens
     ///   8. [w] Pool token mint account
     ///   9. '[]' Sysvar clock account (required)
     ///   10. '[]' Sysvar stake history account
-    ///   11. [] Pool token program id,
+    ///   11. [] Token program id (Tokenkeg...),
     ///   12. [] Stake program id,
 
     // PULL ACTIVESTAKEACCOUNT PARSED DATA
@@ -243,43 +254,47 @@ export class TransactionService {
       { pubkey: this.walletService.VALIDATOR_STAKE_LIST, isSigner: false, isWritable: true },
       { pubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY, isSigner: false, isWritable: false },
       { pubkey: this.walletService.POOL_WITHDRAW_AUTHORITY, isSigner: false, isWritable: false },
-      { pubkey: new PublicKey(stakeAccountAddress), isSigner: false, isWritable: true },
+      { pubkey: userStakeAccPubkey, isSigner: false, isWritable: true },
       { pubkey: poolOwned_StakeAccount[0].pubkey, isSigner: false, isWritable: true },
-      // todo - ask user for stSOL address
-      { pubkey: new PublicKey('GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB'), isSigner: false, isWritable: true },
-      { pubkey: this.walletService.LIQ_POOL_ST_SOL_ACCOUNT, isSigner: false, isWritable: true },
-      { pubkey: this.walletService.ST_SOL_MINT_ACCOUNT, isSigner: true, isWritable: true },
+      // todo - ask user for stSOL token destination address (or create a new stSOL token acc)
+      { pubkey: new PublicKey("GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB"), isSigner: false, isWritable: true }, //where to receive stSOL
+      { pubkey: new PublicKey("GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB"), isSigner: false, isWritable: true }, //acc to receive pool fee tokens (0% - disabled)
+      { pubkey: this.walletService.ST_SOL_MINT_ACCOUNT, isSigner: false, isWritable: true },
       { pubkey: this.walletService.Sysvar_clock, isSigner: false, isWritable: false },
       { pubkey: this.walletService.Sysvar_stake_history, isSigner: false, isWritable: false },
-      { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: false },
+      { pubkey: this.walletService.TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       { pubkey: this.walletService.STAKE_PROGRAM_ID, isSigner: false, isWritable: false },
 
     ];
 
-    const stakePubkey = new PublicKey('GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB');
-
+    //sets DEPOSIT_AUTH as "Withdrawer"
     const txAuthToStakerTX = StakeProgram.authorize({
-      stakePubkey,
+      stakePubkey: userStakeAccPubkey,
       authorizedPubkey: this.walletService.walletController.publicKey,
       newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
       stakeAuthorizationType: { index: 1 }, // Withdraw
     })
+
+    //sets DEPOSIT_AUTH as "Staker"
     const txAuthToPOOLOWNERTX = StakeProgram.authorize({
-      stakePubkey,
+      stakePubkey: userStakeAccPubkey,
       authorizedPubkey: this.walletService.walletController.publicKey,
       newAuthorizedPubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY,
       stakeAuthorizationType: { index: 0 }, // Staker
     })
+    //note: during "deposit" instruction, is sets both auths to WITHDRAW_AUTH
 
     const depositTX = new TransactionInstruction({
       keys,
       programId: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID,
       data,
     });
+
     const transactions: any = [txAuthToStakerTX,txAuthToPOOLOWNERTX, depositTX]
-    this.sendTx(transactions);
+    await this.sendTx(transactions);
+
   };
-  
+
   async delegate(stakeAccParam, delegateAccParam) {
     // const connection: Connection = this.walletService.con;
     // const wallet: Account = this.walletService.acc;

@@ -4,7 +4,7 @@
     </ion-card-header>
     <ion-card-content>
         <p>
-            selling your stSOL allow you to receive your staked sol immediately
+            selling your stSOL allows you to receive wSOL immediately without a 2 day cool-down period
         </p>
         <div class="form-group" id="amount-group">
             <!-- <ion-label>amount</ion-label> -->
@@ -23,7 +23,7 @@
                 </ion-select-option>
             </ion-select>
         </div>
-        <small>this action will cost 0.3% of your staked sol</small>
+        <small>This service has a 3% fee</small>
         <ion-button [disabled]="amountInput.value == 0 || selectedWSOLwallet == null " (click)="sell_stSOL()">sell</ion-button>
         <small *ngIf="sendBtnClicked">please approve transaction on wallet provider popup</small>
     </ion-card-content>

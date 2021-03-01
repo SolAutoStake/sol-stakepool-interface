@@ -71,4 +71,10 @@ export class StakeAccountsComponent implements OnChanges {
     const pubKey = new PublicKey(stakeAccount.pubkey);
     this.transactionService.undelegateFromVoteAccount(pubKey);
   }
+  // deposit stake-acc into the stake-pool
+  deposit(stakeAccount) {
+    //const pubKey = new PublicKey(stakeAccount.pubkey);
+    this.transactionService.depositToStakePOOL(stakeAccount.pubkey.toString());
+  }
+
 }
