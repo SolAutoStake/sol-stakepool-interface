@@ -9,6 +9,7 @@ import { CreateStakeAccountPopupComponent } from './stake-accounts/create-stake-
 import { PoolComponent } from './pool/pool.component';
 import { DelegatePopupComponent } from './stake-accounts/delegate-popup/delegate-popup.component';
 import { WithdrawFromStakeAccountPopupComponent } from './stake-accounts/withdraw-from-stake-account-popup/withdraw-from-stake-account-popup.component';
+import { UndelegatePopupComponent } from './stake-accounts/undelegate-popup/undelegate-popup.component';
 
 
 
@@ -30,7 +31,8 @@ const routes: Routes = [
     CreateStakeAccountPopupComponent,
     DelegatePopupComponent,
     PoolComponent,
-    WithdrawFromStakeAccountPopupComponent
+    WithdrawFromStakeAccountPopupComponent,
+    UndelegatePopupComponent
   ],
   imports: [
     CommonModule,

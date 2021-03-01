@@ -10,6 +10,7 @@ import { PopoverController } from '@ionic/angular';
 import { CreateStakeAccountPopupComponent } from './create-stake-account-popup/create-stake-account-popup.component';
 import { DelegatePopupComponent } from './delegate-popup/delegate-popup.component';
 import { WithdrawFromStakeAccountPopupComponent } from './withdraw-from-stake-account-popup/withdraw-from-stake-account-popup.component';
+import { UndelegatePopupComponent } from './undelegate-popup/undelegate-popup.component';
 @Component({
   selector: 'app-stake-accounts',
   templateUrl: './stake-accounts.component.html',
@@ -77,6 +78,16 @@ export class StakeAccountsComponent implements OnChanges {
   async openWithdawPopup(stakeAccount) {
     const popover = await this.popoverController.create({
       component: WithdrawFromStakeAccountPopupComponent,
+      cssClass: "transfer-token-popup",
+      animated: true,
+      componentProps: { stakeAccount }
+    });
+    return await popover.present();
+  }
+
+  async openUndelegatePopup(stakeAccount) {
+    const popover = await this.popoverController.create({
+      component: UndelegatePopupComponent,
       cssClass: "transfer-token-popup",
       animated: true,
       componentProps: { stakeAccount }

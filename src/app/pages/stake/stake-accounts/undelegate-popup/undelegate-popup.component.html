@@ -5,14 +5,14 @@
 
     <ion-card-content>
         <div class="form-group" id="amount-group">
-            <ion-label>how much SOL you want to withdraw from your stake account?</ion-label>
+            <ion-label>how much SOL you want to undelegate from your stake account?</ion-label>
             <span>
                 <ion-input  #amountInput placeholder="0"></ion-input><small>$SOL</small>
-            </span>
-
+            </span><br>
+            <small>bare-in-mind: when you undelegate from vote account there is a cooldown time period of 1 epoch</small>
         </div>
-
-        <ion-button [disabled]="amountInput.value == 0" (click)="withdraw()">withdraw</ion-button>
+        
+        <ion-button [disabled]="amountInput.value == 0" (click)="deactivate()">deactivate</ion-button>
         <small *ngIf="sendBtnClicked">please approve transaction on wallet provider popup</small>
     </ion-card-content>
 </ion-card>

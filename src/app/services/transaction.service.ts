@@ -42,6 +42,7 @@ import {
   TransactionInstruction,
   StakeAuthorizationType,
   WithdrawStakeParams,
+  DelegateStakeParams,
 } from '@solana/web3.js';
 import { throwError } from 'rxjs';
 import { ToastMessageService } from './toast-message.service';
@@ -131,8 +132,8 @@ export class TransactionService {
     const wallet = this.walletService.walletController;
     try {
       const { blockhash } = await connection.getRecentBlockhash('max');
-      console.log(extraSigners);
       let transaction: Transaction = new Transaction({ feePayer: wallet.publicKey, recentBlockhash: blockhash }).add(...txParam);
+      transaction = await wallet.signTransaction(transaction);
       //LMT: add extra signers (fix create-token-account problem)
       if (extraSigners) transaction.partialSign(...extraSigners);
       //LMT: check null signatures
@@ -141,10 +142,7 @@ export class TransactionService {
           throw Error(`missing signature for ${transaction.signatures[i].publicKey.toString()}. Check .isSigner=true in tx accounts`)
         }
       }
-      transaction = await wallet.signTransaction(transaction);
       this.popoverController.dismiss()
-
-
       const rawTransaction = transaction.serialize({ requireAllSignatures: false });
       const txid = await connection.sendRawTransaction(rawTransaction);
       this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
@@ -198,8 +196,6 @@ export class TransactionService {
     stakeAccount: any,
     stSOLAddress: string
   ) {
-
-    console.log(stakeAccount, stSOLAddress)
     const userStakeAccPubkey = new PublicKey(stakeAccount.pubkey.toString());
 
     const dataLayout = BufferLayout.struct([
@@ -234,11 +230,11 @@ export class TransactionService {
     const poolOwned_StakeAccount = [
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_1,
-        voteAccount: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[0]
+        voteAccount: this.walletService.VALIDATORS_VOTE_ACCOUNTS[0]
       },
       {
         pubkey: this.walletService.STAKE_ACCOUNT_POOL_OWNED_2,
-        voteAccount: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[1]
+        voteAccount: this.walletService.VALIDATORS_VOTE_ACCOUNTS[1]
       }
     ]
     const findVoter = poolOwned_StakeAccount.filter(voter => voter.voteAccount.toBase58() == stakeAccount.account.data.parsed.info.stake.delegation.voter)[0]
@@ -289,47 +285,50 @@ export class TransactionService {
 
   };
 
-  async delegate(stakeAccount: Account) {
+  async delegate(stakeAccount: PublicKey) {
     const connection: Connection = this.walletService.con;
     const authorized = this.walletService.walletController;
-
-    console.log(stakeAccount);
     const flipChanceValidator = Math.floor(Math.random() * Math.floor(2));
-
-    let delegation = StakeProgram.delegate({
-      stakePubkey: stakeAccount.publicKey,
+    console.log(stakeAccount)
+    const params: DelegateStakeParams = {
+      stakePubkey: stakeAccount,
       authorizedPubkey: authorized.publicKey,
-      votePubkey: this.walletService.STAKECONOMY_VOTE_ACCOUNTS[flipChanceValidator],
-    });
-    console.log(authorized.publicKey)
-    await this.sendTx([delegation]);
+      votePubkey: this.walletService.VALIDATORS_VOTE_ACCOUNTS[flipChanceValidator],
+    }
+    let delegateTx: Transaction = StakeProgram.delegate(params);
+    this.sendTx([delegateTx]);
   }
 
-  async withdrawFromStakeAccount(stakeAccountPubKey, lamports: number) {
+  // can be used only after stake tokens has been cooldown
+  async withdrawDeactivateStakeTokens(stakePubkey, lamports: number) {
     const wallet = this.walletService.walletController;
-    const isValid = await this.verifyBalance(lamports, stakeAccountPubKey);
+    const isValid = await this.verifyBalance(lamports, stakePubkey);
     if (isValid) {
       const authorizedPubkey = wallet.publicKey
       const toPubkey = authorizedPubkey;
       const params: WithdrawStakeParams = {
-        stakePubkey: stakeAccountPubKey,
+        stakePubkey,
         authorizedPubkey,
         toPubkey,
         lamports,
       };
-      const tx = StakeProgram.withdraw(params);
-      this.sendTx([tx])
+      const withdrawTx = StakeProgram.withdraw(params);
+      this.sendTx([withdrawTx])
     }
   }
 
-  async undelegateFromVoteAccount(stakePubkey) {
-    // const connection: Connection = this.walletService.con;
-    // const wallet: Account = this.walletService.acc;
+  // normal undelegated will cause cooldown to stake tokens
+  async deactivateStakeTokens(stakePubkey, lamports: number) {
+    const wallet = this.walletService.walletController;
 
-    // const authorizedPubkey = wallet.publicKey;
-    // const params = { stakePubkey, authorizedPubkey };
-    // const tx = StakeProgram.deactivate(params);
-
-    // this.sendTx(tx, wallet)
+    const authorizedPubkey = wallet.publicKey
+    const params: WithdrawStakeParams = {
+      stakePubkey,
+      authorizedPubkey,
+      toPubkey: authorizedPubkey,
+      lamports,
+    };
+    let deactivateTx: Transaction = StakeProgram.deactivate(params);
+    this.sendTx([deactivateTx])
   }
 }

@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { PublicKey } from '@solana/web3.js';
 import { TransactionService } from 'src/app/services/transaction.service';
 
 @Component({
@@ -14,8 +15,10 @@ export class DelegatePopupComponent implements OnInit {
   ngOnInit(): void {
   }
   delegate(){
+    const stakeAccountPubKey = new PublicKey(this.stakeAccount.pubkey)
+
     try {
-      this.transactionService.delegate(this.stakeAccount)
+      this.transactionService.delegate(stakeAccountPubKey)
       this.sendBtnClicked = true;
     } catch (error) {
       console.warn(error)
