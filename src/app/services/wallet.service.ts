@@ -100,7 +100,7 @@ export class WalletService {
   public currentWalletSubject = new Subject<PublicKey>();
   public currentWallet$: Observable<PublicKey> = this.currentWalletSubject
     .asObservable()
-    // .pipe(distinctUntilChanged());
+  // .pipe(distinctUntilChanged());
 
   public networkSubject = new BehaviorSubject<any>(this.ENDPOINTS[0] as any);
   public providerSubject = new BehaviorSubject<any>(this.WALLET_PROVIDERS[0] as any);
@@ -138,24 +138,30 @@ export class WalletService {
     await this.walletController.connect();
   }
   async getTokensOwner(): Promise<any | Token[]> {
-    const tokenAccounts = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
-      programId: this.TOKEN_PROGRAM_ID
-    });
+    try {
+      const tokenAccounts = await this.con.getParsedTokenAccountsByOwner(this.walletController.publicKey, {
+        programId: this.TOKEN_PROGRAM_ID
+      });
 
-    const tokenAccountsFiltered: Token[] = tokenAccounts.value.map(wallet => {
-      const account = wallet.account
+      const tokenAccountsFiltered: Token[] = tokenAccounts.value.map(wallet => {
+        const account = wallet.account
 
-      const token: Token = {
-        address: wallet.pubkey.toBase58(),
-        name: this.getHardCodedTokenName(account.data.parsed.info.mint),
-        amount: account.lamports / LAMPORTS_PER_SOL,
-        tokenAmount: account.data.parsed.info.tokenAmount || null,
-        isNative: account.data.parsed.info.isNative
-      }
-      return token;
-    });
+        const token: Token = {
+          address: wallet.pubkey.toBase58(),
+          publicKey: wallet.pubkey,
+          name: this.getHardCodedTokenName(account.data.parsed.info.mint),
+          amount: account.lamports / LAMPORTS_PER_SOL,
+          tokenAmount: account.data.parsed.info.tokenAmount || null,
+          isNative: account.data.parsed.info.isNative
+        }
+        return token;
+      });
 
-    return { tokenAccounts, tokenAccountsFiltered }
+      return { tokenAccounts, tokenAccountsFiltered }
+    } catch (error) {
+      this.toastMessageService.msg.next({ message: 'fail to return tokens by owner', segmentClass: 'toastError' })
+      return false
+    }
   }
   private getHardCodedTokenName(name) {
     switch (name) {
@@ -226,7 +232,6 @@ export class WalletService {
     }
     return this.apiService.post(this.networkSubject.value.endpoint, raw).pipe(
       map((data) => {
-        console.log(data)
         return data.result;
       }),
       catchError((error) => this.formatErrors(error))

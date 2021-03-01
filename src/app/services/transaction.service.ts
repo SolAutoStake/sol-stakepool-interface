@@ -191,11 +191,12 @@ export class TransactionService {
   };
 
   async depositToStakePOOL(
-    stakeAccount: any
+    stakeAccount: any,
+    stSOLAddress: string
   ) {
 
-    console.log(stakeAccount)
-    const userStakeAccPubkey = new PublicKey(stakeAccount.publicKey);
+    console.log(stakeAccount,stSOLAddress)
+    const userStakeAccPubkey = new PublicKey(stakeAccount.pubkey.toString());
 
     const dataLayout = BufferLayout.struct([
       BufferLayout.u8("instruction")
@@ -208,7 +209,6 @@ export class TransactionService {
       },
       data
     );
-
     ///   User: Deposit some stake into the pool.  The output is a "pool" token representing ownership
     ///   into the pool. Inputs are converted to the current ratio.
     ///
@@ -226,11 +226,6 @@ export class TransactionService {
     ///   11. [] Token program id (Tokenkeg...),
     ///   12. [] Stake program id,
 
-    // PULL ACTIVESTAKEACCOUNT PARSED DATA
-    // COMPARE VOTED ACCOUNT
-    // RETURN THE COMPARED STAKE_ACCOUNT_POOL_OWNED ADDRESS PUBKEY
-    // stakeAccountAddress
-
     // stakeconomy validators
     const poolOwned_StakeAccount = [
       {
@@ -242,8 +237,8 @@ export class TransactionService {
         voteAccount: new PublicKey('87QuuzX6cCuWcKQUFZFm7vP9uJ72ayQD5nr6ycwWYWBG')
       }
     ]
-    const findVoter = poolOwned_StakeAccount.filter(voter => voter.voteAccount.toBase58() == stakeAccount.data.parsed.info.stake.delegation.voter)[0]
-    console.log(findVoter, stakeAccount.data.parsed.info.stake.delegation.voter)
+    const findVoter = poolOwned_StakeAccount.filter(voter => voter.voteAccount.toBase58() == stakeAccount.account.data.parsed.info.stake.delegation.voter)[0]
+    console.log(findVoter.voteAccount.toBase58(), stakeAccount.account.data.parsed.info.stake.delegation.voter)
     const keys = [
       // { pubkey: this.walletService.SMART_POOL_PROGRAM_ACCOUNT_ID, isSigner: false, isWritable: true },
       { pubkey: this.walletService.STAKE_POOL_STATE_ACCOUNT, isSigner: false, isWritable: true },
@@ -251,10 +246,10 @@ export class TransactionService {
       { pubkey: this.walletService.STAKE_POOL_DEPOSIT_AUTHORITY, isSigner: false, isWritable: false },
       { pubkey: this.walletService.POOL_WITHDRAW_AUTHORITY, isSigner: false, isWritable: false },
       { pubkey: userStakeAccPubkey, isSigner: false, isWritable: true },
-      { pubkey: poolOwned_StakeAccount[0].pubkey, isSigner: false, isWritable: true },
+      { pubkey: findVoter.pubkey, isSigner: false, isWritable: true },
       // todo - ask user for stSOL token destination address (or create a new stSOL token acc)
-      { pubkey: new PublicKey("GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB"), isSigner: false, isWritable: true }, //where to receive stSOL
-      { pubkey: new PublicKey("GWiVqdwyRnDTofxeS6uUNSrfbjbcryhzxg3st1iTyHsB"), isSigner: false, isWritable: true }, //acc to receive pool fee tokens (0% - disabled)
+      { pubkey: new PublicKey(stSOLAddress), isSigner: false, isWritable: true }, //where to receive stSOL
+      { pubkey: new PublicKey(stSOLAddress), isSigner: false, isWritable: true }, //acc to receive pool fee tokens (0% - disabled)
       { pubkey: this.walletService.ST_SOL_MINT_ACCOUNT, isSigner: false, isWritable: true },
       { pubkey: this.walletService.Sysvar_clock, isSigner: false, isWritable: false },
       { pubkey: this.walletService.Sysvar_stake_history, isSigner: false, isWritable: false },

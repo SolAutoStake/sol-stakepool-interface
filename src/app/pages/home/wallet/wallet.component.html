@@ -15,7 +15,7 @@
                     <div>{{token.name}}<fa-icon [appCopyToClipboard] [textToCopy]="token.address" [icon]="copyAddress">
                         </fa-icon>
                     </div>
-                    <div>{{token.amount}}</div>
+                    <div>{{(token.amount).toFixed(2)}}</div>
                     <div>
                         <fa-icon [icon]="token.isNative ? vMark : xMark"></fa-icon>
                     </div>

@@ -17,18 +17,51 @@
         <div id="pool-area">
             <div id="join-pool">
                 <ion-grid>
-                    <ion-row id="select-stake-account-wrapper">
-                        <ion-lable>active stake account wallets</ion-lable><br>
-                        <ion-select interface="popover"  placeholder="select wallet" (ionChange)="setSelectedActiveStakeAccount($event)">
-                            <ion-select-option *ngFor="let wallet of activeStakeAccounts" [value]="wallet">
-                                <span>
-                                    {{wallet.pubkey}}
-                                </span>
-                            </ion-select-option>
-                        </ion-select>
-                    </ion-row>
+                    <div id="select-stake-account-wrapper">
+                        <ion-row>
+                            <ion-col sizeMd="6" size="12">
+                                <div class="wallet-selection">
+                                    <ion-lable>active stake account wallets</ion-lable>
+                                    <ion-select interface="popover" placeholder="select wallet"
+                                        (ionChange)="setSelectedActiveStakeAccount($event)">
+                                        <ion-select-option *ngFor="let wallet of activeStakeAccounts" [value]="wallet">
+                                            <span>
+                                                {{wallet.pubkey}}
+                                            </span>
+                                        </ion-select-option>
+                                    </ion-select>
+                                </div>
+                                <div class="wallet-selection">
+                                    <ion-lable>deposit address for stSOL</ion-lable>
+                                    <ion-select interface="popover" placeholder="select wallet"
+                                        (ionChange)="setSelectedstSOLwallet($event)">
+                                        <ion-select-option *ngFor="let wallet of stSOLwallets" [value]="wallet">
+                                            <span>
+                                                {{wallet.address}}
+                                            </span>
+                                        </ion-select-option>
+                                    </ion-select>
+                                </div>
+                            </ion-col>
+
+                            <ion-col sizeMd="6" size="12" *ngIf="selectedActiveStakeAccount">
+                                <ion-lable>wallet balance </ion-lable>
+                                <div id="wallet-balance">
+                                    <p>
+                                        total balance of:<br>
+                                        <b>
+                                            {{(selectedActiveStakeAccount.account.lamports /
+                                            LAMPORTS_PER_SOL).toFixed(2)}} <small>$SOL</small>
+                                        </b>
+                                    </p>
+                                    <p>will be deposited to stake pool</p>
+                                </div>
+                            </ion-col>
+                        </ion-row>
+                    </div>
                     <ion-row>
-                        <ion-button (click)="joinPool()" [disabled]="selectedActiveStakeAccount == null ">join pool</ion-button>
+                        <ion-button (click)="joinPool()" [disabled]="selectedActiveStakeAccount == null || selectedstSOLwallet == null  ">join pool
+                        </ion-button>
                     </ion-row>
                 </ion-grid>
             </div>

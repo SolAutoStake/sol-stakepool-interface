@@ -14,7 +14,7 @@ import { CreateStakeAccountPopupComponent } from './create-stake-account-popup/c
   styleUrls: ['./stake-accounts.component.scss'],
   providers: [LoaderService]
 })
-export class StakeAccountsComponent implements OnInit {
+export class StakeAccountsComponent implements OnChanges {
   @Input('currentWallet') wallet;
   stakeAccIcon = faUsers;
   public solBalance = null
@@ -29,16 +29,13 @@ export class StakeAccountsComponent implements OnInit {
   ) { }
   stakeAccounts: Account[] = null;
 
-  ngOnInit(): void {
-    this.wallet = this.walletService.walletController ? this.walletService.walletController.publicKey : null;
-    if(this.wallet){
+
+  ngOnChanges() {
+    if (this.wallet) {
       this.getStakeAccount()
     }
-    this.walletService.currentWallet$.subscribe(async (wallet) => {
-      this.wallet = wallet
-      this.getStakeAccount()
-    })
-   }
+  }
+
 
   async getStakeAccount() {
     this.stakeAccounts = await this.walletService.getStakeAccountsByOwner().toPromise()
@@ -73,11 +70,6 @@ export class StakeAccountsComponent implements OnInit {
   undelegate(stakeAccount) {
     const pubKey = new PublicKey(stakeAccount.pubkey);
     this.transactionService.undelegateFromVoteAccount(pubKey);
-  }
-  // deposit stake-acc into the stake-pool
-  deposit(stakeAccount) {
-    //const pubKey = new PublicKey(stakeAccount.pubkey);
-    this.transactionService.depositToStakePOOL(stakeAccount.pubkey.toString());
   }
 
 }

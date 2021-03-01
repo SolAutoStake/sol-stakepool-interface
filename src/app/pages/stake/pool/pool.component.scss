@@ -10,12 +10,15 @@
     border-radius: 4px;
     margin: 17px 0;
 }
-
+.wallet-selection {
+    margin-bottom: 20px;
+}
 #select-stake-account-wrapper{
     ion-lable{
         display: block;
         width: 100%;
         font-size: 18px;
+        margin-bottom: 5px;
     }
     padding: 15px 0;
     margin: 15px 0;
@@ -27,6 +30,9 @@
     }
 }
 
+#wallet-balance {
+    padding: 5px;
+}
 ion-button{
     --background: white;
     --color: var(--sol-stake-active);
