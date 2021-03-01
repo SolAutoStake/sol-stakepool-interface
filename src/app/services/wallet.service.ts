@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { LocalDataService } from './local-data.service';
 import { ToastMessageService } from './toast-message.service';
 
 import {
@@ -10,9 +9,7 @@ import {
   clusterApiUrl,
   PublicKey,
   ConfirmedSignatureInfo,
-  ConfirmedTransaction,
   LAMPORTS_PER_SOL,
-  AccountInfo
 } from '@solana/web3.js';
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { Token } from '../models/token';
@@ -183,7 +180,7 @@ export class WalletService {
         return 'wSOL'
         break;
       default:
-        return null;
+        return name;
     }
   }
   private async disconnectFromWallet() {

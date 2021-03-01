@@ -71,8 +71,8 @@ fa-icon{
   display: block;
 }
 #area-list-body {
-  // max-height: 300px;
-  // overflow-y: scroll;
+  max-height: 300px;
+  overflow-y: scroll;
 }
 .area-actions {
   display: flex;
@@ -120,6 +120,12 @@ ion-popover.connect-wallet-popover, ion-popover.transfer-token-popup {
     text-transform: capitalize;
     --border-radius: 8px;
   }
+  ion-toast::part(message){
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
   .toastError {
     --background: var(--sol-stake-err);
     --box-shadow: 0 8px 16px 0 rgba(255, 30, 30, 0.24);

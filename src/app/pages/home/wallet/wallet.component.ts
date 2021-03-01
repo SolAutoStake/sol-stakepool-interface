@@ -3,7 +3,6 @@ import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { faCheck, faTimes, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { PopoverController } from '@ionic/angular';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
-import { LoaderService } from 'src/app/services/loader.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { WalletService } from 'src/app/services/wallet.service';
 import { SendTokenPopupComponent } from './send-token-popup/send-token-popup.component';
@@ -13,8 +12,7 @@ import { SellStSOLPopupComponent } from './sell-st-sol-popup/sell-st-sol-popup.c
 @Component({
   selector: 'app-wallet',
   templateUrl: './wallet.component.html',
-  styleUrls: ['./wallet.component.scss'],
-  providers: [LoaderService]
+  styleUrls: ['./wallet.component.scss']
 })
 export class WalletComponent implements OnInit {
   @Input('currentWallet') wallet;
@@ -30,8 +28,7 @@ export class WalletComponent implements OnInit {
   constructor(
     public popoverController: PopoverController,
     public walletService: WalletService,
-    public utilsService: UtilsService,
-    public loaderService: LoaderService
+    public utilsService: UtilsService
   ) { }
 
   ngOnInit(): void {
@@ -48,7 +45,7 @@ export class WalletComponent implements OnInit {
 
   
   async getWalletData(wallet) {
-    this.loaderService.show()
+
     let tempTokenOwner = [];
     tempTokenOwner.push({
       address: this.wallet.toBase58(),
@@ -61,7 +58,8 @@ export class WalletComponent implements OnInit {
     tempTokenOwner = tempTokenOwner.concat((await this.walletService.getTokensOwner()).tokenAccountsFiltered);
     this.tokensByOwner = tempTokenOwner;
     this.wSOLwallets = this.tokensByOwner.filter(wallet => wallet.name == 'wSOL');
-    this.loaderService.hide();
+
+
   }
   async openSendTokenPopup() {
     const popover = await this.popoverController.create({

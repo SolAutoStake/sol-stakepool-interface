@@ -15,7 +15,6 @@
             <div>status</div>
             <div>Action</div>
         </div>
-        <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
         <div id="area-list-body" *ngIf="stakeAccounts">
             <div class="item" *ngFor="let account of stakeAccounts | filter:searchTerm ">
                 <!-- <small>{{usdPrice(account.account.lamports / LAMPORTS_PER_SOL)}}</small> -->
@@ -36,7 +35,6 @@
     </div>
 </ng-container>
 <ng-template #emptyState>
-    <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
     <app-empty-state></app-empty-state>
 </ng-template>
 </ion-card>

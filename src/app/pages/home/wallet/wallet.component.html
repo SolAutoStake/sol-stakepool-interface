@@ -12,12 +12,17 @@
             </div>
             <div id="area-list-body">
                 <div *ngFor="let token of tokensByOwner" class="item">
-                    <div>{{token.name}}<fa-icon [appCopyToClipboard] [textToCopy]="token.address" [icon]="copyAddress">
+                    <div style="    display: flex;
+                    align-items: center;
+                    justify-content: center;">
+
+                        <div id="shortenView">{{token.name}}</div>
+                        <fa-icon [appCopyToClipboard] [textToCopy]="token.address" [icon]="copyAddress">
                         </fa-icon>
                     </div>
                     <div>{{(token.amount).toFixed(2)}}</div>
                     <div>
-                        <fa-icon [icon]="token.isNative ? vMark : xMark"></fa-icon>
+                        <fa-icon [icon]="!token.isNative ? vMark : xMark"></fa-icon>
                     </div>
                     <div class="area-actions">
                         <ion-button fill="clear" *ngIf="token.isNative" (click)="openSendTokenPopup()">send</ion-button>
@@ -29,7 +34,6 @@
         </div>
     </ng-container>
     <ng-template #emptyState>
-        <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
         <app-empty-state></app-empty-state>
     </ng-template>
 </ion-card>

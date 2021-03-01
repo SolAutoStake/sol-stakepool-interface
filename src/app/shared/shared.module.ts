@@ -14,6 +14,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FilterPipe } from './pipes/filter.pipe';
 import { CopyToClipboardDirective } from './directives/copy-to-clipboard.directive';
+import { TransactionPopupComponent } from './components/transaction-popup/transaction-popup.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { CopyToClipboardDirective } from './directives/copy-to-clipboard.directi
     SearchInputComponent,
     CopyToClipboardDirective,
     EmptyStateComponent,
-    SettingsBoxComponent
+    SettingsBoxComponent,
+    TransactionPopupComponent
   ],
   imports: [
     IonicModule,

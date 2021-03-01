@@ -4,11 +4,12 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { TransactionService } from 'src/app/services/transaction.service';
 
 @Component({
-  selector: 'app-create-stake-account-popup',
-  templateUrl: './create-stake-account-popup.component.html',
-  styleUrls: ['./create-stake-account-popup.component.scss']
+  selector: 'app-transaction-popup',
+  templateUrl: './transaction-popup.component.html',
+  styleUrls: ['./transaction-popup.component.scss']
 })
-export class CreateStakeAccountPopupComponent implements OnInit {
+export class TransactionPopupComponent implements OnInit {
+
   @ViewChild('amountInput') amount: IonInput;
   sendBtnClicked: boolean = false;
   constructor(private transactionService: TransactionService) { }
@@ -16,7 +17,7 @@ export class CreateStakeAccountPopupComponent implements OnInit {
   ngOnInit(): void {
   }
   create(){
-    const solToDeposit: any  = Number(this.amount.value) * LAMPORTS_PER_SOL
+    const solToDeposit: number  = Number(this.amount.value) * LAMPORTS_PER_SOL
     try {
       this.transactionService.createStakeAccount(solToDeposit)
       this.sendBtnClicked = true;

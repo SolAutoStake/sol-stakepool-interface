@@ -110,7 +110,7 @@ export class TransactionService {
       const authorizedPubkey = wallet.publicKey;
       const authorized = new Authorized(authorizedPubkey, authorizedPubkey);
       const lockup = new Lockup(0, 0, fromPubkey);
-      const lamports = minimumAmount + sol * LAMPORTS_PER_SOL;
+      const lamports = minimumAmount + sol;
       let tx: Transaction = StakeProgram.createAccount({
         fromPubkey,
         stakePubkey: newAccountPubkey,
@@ -145,14 +145,24 @@ export class TransactionService {
       this.popoverController.dismiss()
       const rawTransaction = transaction.serialize({ requireAllSignatures: false });
       const txid = await connection.sendRawTransaction(rawTransaction);
-      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo' });
+      this.toastMessageService.msg.next({ message: 'transaction submitted', segmentClass: 'toastInfo', toastWithLoader: true });
       const confirmTx = await connection.confirmTransaction(txid, 'max');
+      this.toastMessageService.hideToast()
       this.toastMessageService.msg.next({ message: 'transaction approved', segmentClass: 'toastInfo' });
       console.log(confirmTx, txid)
       this.walletService.currentWalletSubject.next(wallet.publicKey)
     } catch (error) {
-      console.error(error);
-      this.toastMessageService.msg.next({ message: 'transaction failed', segmentClass: 'toastError' });
+      const errMsg = String(error);
+      console.log(errMsg)
+      if (errMsg.indexOf('Unable to merge due to credits observed mismatch') > 1) {
+        this.toastMessageService.msg.next({ message: 'You have to wait until the end of the epoch (1-3 days) to join the pool', segmentClass: 'toastError' });
+      }
+      else if (errMsg.indexOf('Transaction cancelled') > 1) {
+        this.toastMessageService.msg.next({ message: 'Transaction cancelled', segmentClass: 'toastError' });
+      } else {
+        this.toastMessageService.msg.next({ message: 'Transaction failed', segmentClass: 'toastError' });
+      }
+
     }
   }
 

@@ -5,7 +5,6 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { UtilsService } from 'src/app/services/utils.service';
 import { TransactionService } from 'src/app/services/transaction.service';
-import { LoaderService } from 'src/app/services/loader.service';
 import { PopoverController } from '@ionic/angular';
 import { CreateStakeAccountPopupComponent } from './create-stake-account-popup/create-stake-account-popup.component';
 import { DelegatePopupComponent } from './delegate-popup/delegate-popup.component';
@@ -14,17 +13,15 @@ import { UndelegatePopupComponent } from './undelegate-popup/undelegate-popup.co
 @Component({
   selector: 'app-stake-accounts',
   templateUrl: './stake-accounts.component.html',
-  styleUrls: ['./stake-accounts.component.scss'],
-  providers: [LoaderService]
+  styleUrls: ['./stake-accounts.component.scss']
 })
-export class StakeAccountsComponent implements OnChanges {
+export class StakeAccountsComponent implements OnInit {
   @Input('currentWallet') wallet;
   stakeAccIcon = faUsers;
   public solBalance = null
   public usdBalance = null;
   LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
   constructor(
-    public loaderService: LoaderService,
     private walletService: WalletService,
     public utilsService: UtilsService,
     private transactionService: TransactionService,
@@ -32,18 +29,18 @@ export class StakeAccountsComponent implements OnChanges {
   ) { }
   stakeAccounts: Account[] = null;
 
-
-  ngOnChanges() {
-    if (this.wallet) {
+  ngOnInit(): void {
+    this.wallet = this.walletService.walletController ? this.walletService.walletController.publicKey : null;
+    if(this.wallet){
       this.getStakeAccount()
     }
-  }
-
+    this.walletService.currentWallet$.subscribe(async (wallet) => {
+      this.getStakeAccount()
+    })
+   }
 
   async getStakeAccount() {
     this.stakeAccounts = await this.walletService.getStakeAccountsByOwner().toPromise()
-
-    // this.transactionService.depositToStakePOOL('57W1qLmSGavT6zdVDxFSk1pzVj7621RESpKhKZp5CCyw');
   }
   async usdPrice(sol) {
     return this.utilsService.solanaUsdPrice(sol);

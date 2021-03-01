@@ -11,16 +11,31 @@ export class ToastMessageService {
     private toastController: ToastController
   ) {
     this.msg.subscribe((toastData: Toast) => {
+      if(!toastData.toastWithLoader){
         this.presentToast(toastData.message, toastData.segmentClass);    
+      }else{
+        this.presentToastWithLoader(toastData.message, toastData.segmentClass)
+      }
     });
   }
   async presentToast(text: string, segmentClass: string) {
     const toast = await this.toastController.create({
       cssClass: `toastStyle ${segmentClass}`,
-      message: text,
+      message: `${text}`,
       duration: 2000,
-      animated: true
+      animated: true,
     });
     toast.present();
+  }
+  async presentToastWithLoader(text: string, segmentClass: string) {
+    const toast = await this.toastController.create({
+      cssClass: `toastStyle ${segmentClass}`,
+      message: `${text}<ion-spinner name="crescent"></ion-spinner>`,
+      animated: true,
+    });
+    toast.present();
+  }
+  async hideToast() {
+    this.toastController.dismiss();
   }
 }

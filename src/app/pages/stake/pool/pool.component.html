@@ -8,12 +8,9 @@
     <ng-container *ngIf="wallet; else emptyState">
         <div id="pool-informative">
             <div id="title">
-                stake pool reward
+                what is stake pool?
             </div>
-            Liquidity providers earn a 0.3% fee on all trades proportional to their share of the pool. Fees are added to
-            the pool,
-            accrue in real time and can be claimed by withdrawing your liquidity.
-        </div>
+            Investing in a Smart Pool allows a token holder to hedge their risk of a single validator going down or being penalized as the result of slashing or yield throttling.        </div>
         <div id="pool-area">
             <div id="join-pool">
                 <ion-grid>
@@ -71,7 +68,6 @@
         </div>
     </ng-container>
     <ng-template #emptyState>
-        <ion-spinner name="crescent" *ngIf="loaderService.isLoading | async"></ion-spinner>
         <app-empty-state></app-empty-state>
     </ng-template>
 </ion-card>
